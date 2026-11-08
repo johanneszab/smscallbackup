@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<!-- SPDX-FileCopyrightText: 2026 Johannes Meyer zum Alten Borgloh -->
+<!-- SPDX-License-Identifier: MIT -->
+<!--File Created By SMS Backup & Restore v10.29.002 on 01/02/2024 10:00:00 (test data: all names and numbers are made up)-->
+<?xml-stylesheet type="text/xsl" href="sms.xsl"?>
+<smses count="10" backup_set="11111111-2222-4333-8444-555555555555" backup_date="1706781600000" type="archive">
+  <sms protocol="0" address="+12025550101" date="1706770000123" type="1" subject="null" body="Hello &#55357;&#56832; how are you?&#10;Second line" toa="null" sc_toa="null" service_center="+12025550000" read="1" status="-1" locked="0" date_sent="1706769998000" sub_id="1" readable_date="Feb 1, 2024 07:46:40" contact_name="Alice Example" />
+  <sms protocol="0" address="+12025550101" date="1706770060456" type="2" subject="null" body="Fine, thanks! &amp; you?" toa="null" sc_toa="null" service_center="null" read="1" status="0" locked="0" date_sent="0" sub_id="1" readable_date="Feb 1, 2024 07:47:40" contact_name="Alice Example" />
+  <sms protocol="0" address="(202) 555-0101" date="1706770100000" type="1" subject="null" body="Same person, other number format" toa="null" sc_toa="null" service_center="null" read="0" status="-1" locked="0" date_sent="0" sub_id="1" readable_date="Feb 1, 2024 07:48:20" contact_name="Alice Example" />
+  <sms protocol="0" address="ACME" date="1706770200000" type="1" subject="null" body="Your parcel arrives today&#1;" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" date_sent="0" sub_id="-1" readable_date="Feb 1, 2024 07:50:00" contact_name="(Unknown)" />
+  <sms protocol="0" address="+12025550102" date="1706770300000" type="3" subject="null" body="unsent draft" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" date_sent="0" sub_id="1" readable_date="Feb 1, 2024 07:51:40" contact_name="Bob Example" />
+  <sms protocol="0" address="+12025550102" date="1706770400000" type="5" subject="null" body="this one failed" toa="null" sc_toa="null" service_center="null" read="1" status="64" locked="0" date_sent="0" sub_id="1" readable_date="Feb 1, 2024 07:53:20" contact_name="Bob Example" />
+  <sms protocol="0" address="verify@bot.rcs.google.com" date="1706770500000" type="1" subject="null" body="Your code is 123456" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" date_sent="0" sub_id="1" readable_date="Feb 1, 2024 07:55:00" contact_name="Example Bank" />
+  <mms date="1706770600000" ct_t="application/vnd.wap.multipart.related" msg_box="1" rr="null" sub="null" read_status="null" seen="1" sub_id="1" read="1" m_id="m-0001" sub_cs="null" resp_st="null" date_sent="0" retr_txt_cs="null" ct_cls="null" m_type="132" d_rpt="null" address="+12025550101" text_only="0" readable_date="Feb 1, 2024 07:56:40" contact_name="Alice Example">
+    <parts>
+      <part seq="-1" ct="application/smil" name="null" chset="null" cd="null" fn="null" cid="&lt;smil&gt;" cl="smil.xml" ctt_s="null" ctt_t="null" text="&lt;smil&gt;&lt;body&gt;&lt;par dur=&quot;5000ms&quot;&gt;&lt;img src=&quot;pixel.png&quot;/&gt;&lt;text src=&quot;text_0.txt&quot;/&gt;&lt;/par&gt;&lt;/body&gt;&lt;/smil&gt;" />
+      <part seq="0" ct="image/png" name="pixel.png" chset="null" cd="null" fn="null" cid="&lt;pixel&gt;" cl="pixel.png" ctt_s="null" ctt_t="null" text="null" data="iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAD0lEQVR42mNgqLiOQMRxABNCFPFmAF/zAAAAAElFTkSuQmCC" />
+      <part seq="0" ct="text/plain" name="null" chset="106" cd="null" fn="null" cid="&lt;text_0&gt;" cl="text_0.txt" ctt_s="null" ctt_t="null" text="A picture for you" />
+    </parts>
+    <addrs>
+      <addr address="+12025550101" type="137" charset="106" />
+      <addr address="insert-address-token" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <sms protocol="0" address="+12025550103" date="1706770700000" type="1" subject="null" body="Apostrophe ' quote &quot; and &lt;tag&gt;" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" date_sent="1706000000000" sub_id="2" readable_date="Feb 1, 2024 07:58:20" contact_name="Carol Example" />
+  <sms protocol="0" address="+12025550104" date="1706770800000" type="1" subject="null" body="null" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" date_sent="0" sub_id="1" readable_date="Feb 1, 2024 08:00:00" contact_name="(Unknown)" />
+</smses>

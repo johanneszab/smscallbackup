@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Johannes Meyer zum Alten Borgloh
+# SPDX-License-Identifier: MIT
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Icon=smscallbackup
+Exec=smscallbackup
+Name=SMS & Call Backup
+Comment=Back up and restore SMS and calls in the SMS Backup & Restore format
+Comment[de]=SMS und Anrufliste im Format von SMS Backup & Restore sichern und wiederherstellen
+
+[X-Sailjail]
+Permissions=CommunicationHistory;Documents;Downloads;RemovableMedia
+OrganizationName=de.jzab
+ApplicationName=smscallbackup

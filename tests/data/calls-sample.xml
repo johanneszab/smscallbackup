@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<!-- SPDX-FileCopyrightText: 2026 Johannes Meyer zum Alten Borgloh -->
+<!-- SPDX-License-Identifier: MIT -->
+<!--File Created By SMS Backup & Restore v10.29.002 on 01/02/2024 10:00:00 (test data: all names and numbers are made up)-->
+<calls count="10" backup_set="11111111-2222-4333-8444-555555555555" backup_date="1706781600000">
+  <call number="+12025550101" duration="62" date="1706760000008" type="1" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="com.android.phone/com.android.services.telephony.TelephonyConnectionService" readable_date="Feb 1, 2024 05:00:00" contact_name="Alice Example" />
+  <call number="+12025550101" duration="5" date="1706761000000" type="2" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="com.android.phone/com.android.services.telephony.TelephonyConnectionService" readable_date="Feb 1, 2024 05:16:40" contact_name="Alice Example" />
+  <call number="+12025550102" duration="0" date="1706762000000" type="3" presentation="1" subscription_id="null" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 05:33:20" contact_name="Bob Example" />
+  <call number="+12025550102" duration="12" date="1706763000000" type="4" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 05:50:00" contact_name="Bob Example" />
+  <call number="+12025550103" duration="0" date="1706764000000" type="5" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 06:06:40" contact_name="Carol Example" />
+  <call number="+12025550103" duration="0" date="1706765000000" type="6" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 06:23:20" contact_name="Carol Example" />
+  <call number="+12025550104" duration="30" date="1706766000000" type="7" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 06:40:00" contact_name="(Unknown)" />
+  <call number="" duration="0" date="1706767000000" type="3" presentation="2" subscription_id="1" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 06:56:40" contact_name="(Unknown)" />
+  <call number="+12025550105" duration="240" date="1706768000000" type="2" presentation="1" subscription_id="1" post_dial_digits=",123" subscription_component_name="null" readable_date="Feb 1, 2024 07:13:20" contact_name="(Unknown)" />
+  <call number="+12025550106" duration="9" date="1706769000000" type="99" presentation="1" subscription_id="1" post_dial_digits="" subscription_component_name="null" readable_date="Feb 1, 2024 07:30:00" contact_name="(Unknown)" />
+</calls>
