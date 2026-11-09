@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Johannes Meyer zum Alten Borgloh
+# SPDX-License-Identifier: MIT
+#
+# Checks every 15 minutes whether an automatic backup is due. The service does not even
+# start while automatic backups are off. A backup the phone missed because it was switched
+# off or asleep runs at the first check after that.
+[Unit]
+Description=Automatic backup of SMS, MMS and calls (SMS & Call Backup)
+
+[Timer]
+OnCalendar=*:0/15
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

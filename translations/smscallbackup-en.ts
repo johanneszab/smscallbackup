@@ -16,10 +16,6 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <source>Backs up your SMS and call log in the XML format of the Android app SMS Backup &amp; Restore, and restores such backups. Move your history between Android and Sailfish OS in both directions, or keep a copy of it.</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
             <source>Restoring only adds what is not on the phone yet, so restoring a backup twice does no harm. Restored messages go into the existing conversations of the Messages app.</source>
             <translation type="unfinished" />
         </message>
@@ -42,6 +38,10 @@
         <message>
             <source>Source code</source>
             <extracomment>Opens the project page in the browser</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Backs up your SMS, MMS and call log in the XML format of the Android app SMS Backup &amp; Restore, and restores such backups, also their RCS chats. Move your history between Android and Sailfish OS in both directions, or keep a copy of it, by hand or automatically.</source>
             <translation type="unfinished" />
         </message>
     </context>
@@ -77,6 +77,45 @@
         </message>
         <message>
             <source>Writing the backup</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 cannot be read, so it was left as it is: %2 Move it away to start a new one.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 is not a backup of %2, so it was left as it is. Move it away to start a new one.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>messages</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>calls</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 cannot be read, so it was left as it is: %2</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 was changed during the backup, so it was left as it is. Please try again.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Another backup is running at the moment. Please try again in a minute.</source>
+            <translation type="unfinished" />
+        </message>
+    </context>
+    <context>
+        <name>Cli</name>
+        <message>
+            <source>SMS &amp; Call Backup</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Automatic backup failed</source>
             <translation type="unfinished" />
         </message>
     </context>
@@ -141,6 +180,14 @@
             <source>Writing to the message database failed.</source>
             <translation type="unfinished" />
         </message>
+        <message>
+            <source>Cannot create the folder %1.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Storing the attachment %1 failed.</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>MainPage</name>
@@ -201,15 +248,6 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <source>SMS. MMS are not included yet.</source>
-            <extracomment>Description of the "Messages" switch</extracomment>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>SMS, saved in sms-&lt;date&gt;.xml</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
             <source>Call log</source>
             <translation type="unfinished" />
         </message>
@@ -247,10 +285,6 @@
             <translation type="unfinished" />
         </message>
         <message>
-            <source>No backups in this folder yet. Backups of SMS Backup &amp; Restore on Android work too: copy their sms-….xml and calls-….xml files into this folder, or choose them with “Restore from files” in the pull-down menu.</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
             <source>Delete</source>
             <translation type="unfinished" />
         </message>
@@ -266,6 +300,62 @@
         <message>
             <source>Backup files</source>
             <extracomment>File picker title</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>On this phone: %1, %2 and %3.</source>
+            <extracomment>%1, %2 and %3 are e.g. "120 SMS", "4 MMS" and "35 calls"</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message numerus="yes">
+            <source>%n MMS</source>
+            <translation>
+                <numerusform>%n MMS</numerusform>
+                <numerusform>%n MMS</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>SMS and MMS, saved in sms.xml</source>
+            <extracomment>Description of the "Messages" switch</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>SMS and MMS, saved in sms-&lt;date&gt;.xml</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Saved in calls.xml</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Add to the same files</source>
+            <extracomment>Switch: incremental backups into the same two files</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Each backup adds what is new to sms.xml and calls.xml. They keep everything, also what was deleted on the phone.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Each backup writes new files with everything that is on the phone.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Automatic backup</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>The automatic backup of %1 failed: %2</source>
+            <extracomment>%1 is when, %2 the reason</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No backups in this folder yet. Backups of SMS Backup &amp; Restore on Android work too: copy their XML files into this folder, or choose them with “Restore from files” in the pull-down menu.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>each backup adds to them</source>
+            <extracomment>After the file names of sms.xml and calls.xml</extracomment>
             <translation type="unfinished" />
         </message>
     </context>
@@ -291,16 +381,17 @@
             <source>entries of an unknown type</source>
             <translation type="unfinished" />
         </message>
+        <message>
+            <source>MMS notifications and reports</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>MMS without text or attachments</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>RestorePage</name>
-        <message numerus="yes">
-            <source>%n MMS cannot be restored yet and are left out.</source>
-            <translation>
-                <numerusform>%n MMS cannot be restored yet and is left out.</numerusform>
-                <numerusform>%n MMS cannot be restored yet and are left out.</numerusform>
-            </translation>
-        </message>
         <message>
             <source>Left out: %1 %2</source>
             <extracomment>e.g. "Left out: 3 drafts"</extracomment>
@@ -389,15 +480,23 @@
             <source>They are in the Messages and Phone apps now.</source>
             <translation type="unfinished" />
         </message>
+        <message numerus="yes">
+            <source>%n attachment(s) of MMS are not in the backup (it was made without them). Their messages are restored without them.</source>
+            <translation>
+                <numerusform>%n attachment of an MMS is not in the backup (it was made without attachments). Its message is restored without it.</numerusform>
+                <numerusform>%n attachments of MMS are not in the backup (it was made without attachments). Their messages are restored without them.</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>MMS among them</source>
+            <extracomment>Number of MMS among the messages of the backup</extracomment>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>RestoreTask</name>
         <message>
             <source>Reading %1</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Comparing with the history on the phone</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -410,6 +509,18 @@
         </message>
         <message>
             <source>Restoring</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Reading the history on the phone</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Cannot create the folder %1.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Storing the attachments of the backup failed: %1</source>
             <translation type="unfinished" />
         </message>
     </context>
@@ -436,6 +547,101 @@
         <name>SbrWriter</name>
         <message>
             <source>Writing the backup failed.</source>
+            <translation type="unfinished" />
+        </message>
+    </context>
+    <context>
+        <name>SchedulePage</name>
+        <message>
+            <source>Saved %1 and %2.</source>
+            <translation type="unfinished" />
+        </message>
+        <message numerus="yes">
+            <source>%n message(s)</source>
+            <translation>
+                <numerusform>%n message</numerusform>
+                <numerusform>%n messages</numerusform>
+            </translation>
+        </message>
+        <message numerus="yes">
+            <source>%n call(s)</source>
+            <translation>
+                <numerusform>%n call</numerusform>
+                <numerusform>%n calls</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Nothing new since the last backup.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Added %1 and %2.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Automatic backup</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Back up</source>
+            <extracomment>How often the automatic backup runs</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Never</source>
+            <extracomment>Automatic backup</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Every day</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Every week</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Every month</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Day</source>
+            <extracomment>Day of the week of the automatic backup</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Day of the month</source>
+            <extracomment>Day of the month of the automatic backup</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>In months without day %1, on their last day.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Time</source>
+            <extracomment>Time of day of the automatic backup</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Next backup: as soon as possible</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Next backup: %1</source>
+            <extracomment>%1 is a date and time</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>The backup runs in the background, also when the app is closed, and uses the choices of the main page: what to back up, the folder and whether to add to the same files. It starts within 15 minutes of the time set, or, if the phone is switched off or asleep then, as soon as it is on again. If it fails, a notification tells why.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Last automatic backup</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>When</source>
             <translation type="unfinished" />
         </message>
     </context>
@@ -540,6 +746,42 @@
             <translation>
                 <numerusform>%n call</numerusform>
                 <numerusform>%n calls</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Nothing new since the last backup.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Added %1 and %2.</source>
+            <extracomment>Shown after a backup that added to sms.xml and calls.xml, %1 and %2 are e.g. "3 messages" and "1 call"</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Daily at %1</source>
+            <extracomment>Automatic backup, %1 is a time</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Every %1 at %2</source>
+            <extracomment>Automatic backup, %1 is a day of the week, %2 a time</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Monthly on day %1 at %2</source>
+            <extracomment>Automatic backup, %1 is a day of the month (1-31), %2 a time</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Off</source>
+            <extracomment>Automatic backup</extracomment>
+            <translation type="unfinished" />
+        </message>
+        <message numerus="yes">
+            <source>%n attachment(s) could not be read and are missing in the backup.</source>
+            <translation>
+                <numerusform>%n attachment could not be read and is missing in the backup.</numerusform>
+                <numerusform>%n attachments could not be read and are missing in the backup.</numerusform>
             </translation>
         </message>
     </context>

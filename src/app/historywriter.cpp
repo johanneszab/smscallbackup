@@ -8,6 +8,8 @@
 #include <CommHistory/Event>
 #include <CommHistory/EventModel>
 #include <CommHistory/Group>
+#include <CommHistory/MessagePart>
+#include <CommHistory/commhistorydatabasepath.h>
 #include <CommHistory/groupmanager.h>
 #include <CommHistory/Recipient>
 #include <CommHistory/commonutils.h>
@@ -15,6 +17,10 @@
 #include <QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QSet>
 #include <QTimer>
 #include <QUuid>
 
@@ -30,6 +36,42 @@ QString randomHex(int length)
     while (hex.size() < length)
         hex += QUuid::createUuid().toRfc4122().toHex();
     return QString::fromLatin1(hex.left(length).toUpper());
+}
+
+// Moves the staged files of an MMS into the event's folder, data/<event id>/, the way
+// commhistoryd stores the parts of the MMS it receives.
+bool storeParts(const HistoryEvent &h, int eventId, QList<CommHistory::MessagePart> *parts, QString *error)
+{
+    const QString dir = CommHistoryDatabasePath::dataDir(eventId);
+    if (!QDir().mkpath(dir)) {
+        *error = QCoreApplication::translate("HistoryWriter", "Cannot create the folder %1.").arg(dir);
+        return false;
+    }
+    QSet<QString> used;
+    for (const HistoryPart &p : h.parts) {
+        const QString name = p.fileName.isEmpty() ? QStringLiteral("part") : p.fileName;
+        QString unique = name;
+        for (int n = 2; used.contains(unique.toLower()); ++n) {
+            const int dot = name.lastIndexOf(QLatin1Char('.'));
+            unique = dot > 0 ? QStringLiteral("%1-%2%3").arg(name.left(dot)).arg(n).arg(name.mid(dot))
+                             : QStringLiteral("%1-%2").arg(name).arg(n);
+        }
+        used.insert(unique.toLower());
+        const QString target = QDir(dir).filePath(unique);
+        if (QFileInfo::exists(target))
+            QFile::remove(target);
+        // QFile::rename() copies if the files are on different file systems.
+        if (!QFile::rename(p.path, target)) {
+            *error = QCoreApplication::translate("HistoryWriter", "Storing the attachment %1 failed.").arg(unique);
+            return false;
+        }
+        CommHistory::MessagePart part;
+        part.setContentId(p.contentId);
+        part.setContentType(p.contentType);
+        part.setPath(target);
+        parts->append(part);
+    }
+    return true;
 }
 
 } // namespace
@@ -48,6 +90,21 @@ QString HistoryWriter::groupKey(const QString &remoteUid)
     // Same as libcommhistory's minimizeRemoteUid() for cellular accounts.
     const QString minimized = CommHistory::minimizePhoneNumber(remoteUid).toLower();
     return minimized.isEmpty() ? remoteUid.toLower() : minimized;
+}
+
+QString HistoryWriter::conversationKey(const QStringList &remoteUids)
+{
+    QStringList keys;
+    for (const QString &uid : remoteUids)
+        keys.append(groupKey(uid));
+    keys.removeDuplicates();
+    keys.sort();
+    return keys.join(QLatin1Char('\n'));
+}
+
+QString HistoryWriter::conversationKey(const HistoryEvent &event)
+{
+    return event.participants.size() > 1 ? conversationKey(event.participants) : groupKey(event.remoteUid);
 }
 
 void HistoryWriter::start(const QList<HistoryEvent> &events, const QString &localUid,
@@ -93,45 +150,58 @@ bool HistoryWriter::prepareConversations(QString *error)
     m_groups.clear();
     if (HistoryStore::exists()) {
         HistoryStore store;
-        if (!store.open(error) || !store.groupsOf(m_localUid, &HistoryWriter::groupKey, &m_groups, error))
+        const auto keyOf = [](const QStringList &remoteUids) { return HistoryWriter::conversationKey(remoteUids); };
+        if (!store.open(error) || !store.conversations(m_localUid, keyOf, &m_groups, error))
             return false;
     }
 
-    // New conversations are named after the number's international form if the backup
-    // has it (like "+49176..." rather than "0176..."), else after its most used form.
+    // New one-to-one conversations are named after the number's international form if
+    // the backup has it (like "+49176..." rather than "0176..."), else after its most
+    // used form. Group conversations get the members of their first message.
     QHash<QString, QHash<QString, int> > forms;
+    QHash<QString, QStringList> members;
     QStringList newKeys;
     for (const HistoryEvent &e : m_events) {
         if (!e.isMessage())
             continue;
-        const QString key = groupKey(e.remoteUid);
+        const QString key = conversationKey(e);
         if (m_groups.contains(key))
             continue;
-        if (!forms.contains(key))
+        if (!forms.contains(key) && !members.contains(key))
             newKeys.append(key);
-        forms[key][e.remoteUid] += 1;
+        if (e.participants.size() > 1) {
+            if (!members.contains(key))
+                members.insert(key, e.participants);
+        } else {
+            forms[key][e.remoteUid] += 1;
+        }
     }
     if (newKeys.isEmpty())
         return true;
 
     QList<CommHistory::Group> groups;
     for (const QString &key : newKeys) {
-        const QHash<QString, int> &candidates = forms[key];
-        QString best;
-        int bestCount = 0;
-        bool bestInternational = false;
-        for (QHash<QString, int>::const_iterator it = candidates.constBegin(); it != candidates.constEnd(); ++it) {
-            const bool international = it.key().startsWith(QLatin1Char('+'));
-            if (best.isNull() || (international && !bestInternational)
-                    || (international == bestInternational && it.value() > bestCount)) {
-                best = it.key();
-                bestCount = it.value();
-                bestInternational = international;
-            }
-        }
         CommHistory::Group group;
         group.setLocalUid(m_localUid);
-        group.setRecipients(CommHistory::RecipientList(CommHistory::Recipient(m_localUid, best)));
+        if (members.contains(key)) {
+            // Like the Messages app makes conversations with several people.
+            group.setRecipients(CommHistory::RecipientList::fromUids(m_localUid, members.value(key)));
+        } else {
+            const QHash<QString, int> &candidates = forms[key];
+            QString best;
+            int bestCount = 0;
+            bool bestInternational = false;
+            for (QHash<QString, int>::const_iterator it = candidates.constBegin(); it != candidates.constEnd(); ++it) {
+                const bool international = it.key().startsWith(QLatin1Char('+'));
+                if (best.isNull() || (international && !bestInternational)
+                        || (international == bestInternational && it.value() > bestCount)) {
+                    best = it.key();
+                    bestCount = it.value();
+                    bestInternational = international;
+                }
+            }
+            group.setRecipients(CommHistory::RecipientList(CommHistory::Recipient(m_localUid, best)));
+        }
         group.setChatType(CommHistory::Group::ChatTypeP2P);
         groups.append(group);
     }
@@ -156,6 +226,7 @@ void HistoryWriter::step()
 
     using CommHistory::Event;
     QList<Event> batch;
+    QList<int> indexes;     // m_events index of each batch entry
     int messages = 0;
     int calls = 0;
     const int end = qMin(m_next + BatchSize, m_events.size());
@@ -179,7 +250,7 @@ void HistoryWriter::step()
             e.setLastModifiedT(quint32(h.startTime));
             ++calls;
         } else {
-            const int groupId = m_groups.value(groupKey(h.remoteUid), -1);
+            const int groupId = m_groups.value(conversationKey(h), -1);
             if (groupId < 0) {
                 finish(false, tr("No conversation for %1.").arg(h.remoteUid));
                 return;
@@ -188,8 +259,22 @@ void HistoryWriter::step()
             e.setFreeText(h.freeText);
             if (!h.subject.isEmpty())
                 e.setSubject(h.subject);
-            // The same tokens and modification times as messages the phone handled itself.
-            if (h.direction == HistoryEvent::Inbound) {
+            if (h.isMms()) {
+                // Like the MMS commhistoryd stores: headers, no message token; the
+                // attachments follow once the event has its id.
+                if (!h.toList.isEmpty())
+                    e.setToList(h.toList);
+                if (!h.ccList.isEmpty())
+                    e.setCcList(h.ccList);
+                if (!h.bccList.isEmpty())
+                    e.setBccList(h.bccList);
+                if (!h.mmsMessageId.isEmpty())
+                    e.setExtraProperty(QLatin1String(HistoryStore::MmsMessageIdProperty), h.mmsMessageId);
+                if (!h.mmsTransactionId.isEmpty())
+                    e.setExtraProperty(QLatin1String(HistoryStore::MmsTransactionIdProperty), h.mmsTransactionId);
+                e.setLastModifiedT(quint32(h.endTime));
+            } else if (h.direction == HistoryEvent::Inbound) {
+                // The same tokens and modification times as messages the phone handled itself.
                 e.setMessageToken(QUuid::createUuid().toString().mid(1, 36));
                 e.setLastModifiedT(0);
             } else {
@@ -201,12 +286,38 @@ void HistoryWriter::step()
         if (!m_subscriberIdentity.isEmpty())
             e.setSubscriberIdentity(m_subscriberIdentity);
         batch.append(e);
+        indexes.append(i);
     }
 
     if (!batch.isEmpty() && !m_model->addEvents(batch, false)) {
         finish(false, tr("Writing to the message database failed."));
         return;
     }
+
+    QList<Event> withParts;
+    for (int b = 0; b < batch.size(); ++b) {
+        const HistoryEvent &h = m_events.at(indexes.at(b));
+        if (!h.isMms() || h.parts.isEmpty())
+            continue;
+        QList<CommHistory::MessagePart> parts;
+        QString error;
+        if (!storeParts(h, batch.at(b).id(), &parts, &error)) {
+            m_messages += messages;
+            m_calls += calls;
+            finish(false, error);
+            return;
+        }
+        Event e = batch.at(b);
+        e.setMessageParts(parts);
+        withParts.append(e);
+    }
+    if (!withParts.isEmpty() && !m_model->modifyEvents(withParts)) {
+        m_messages += messages;
+        m_calls += calls;
+        finish(false, tr("Writing to the message database failed."));
+        return;
+    }
+
     m_messages += messages;
     m_calls += calls;
     m_next = end;

@@ -14,18 +14,26 @@ PLURAL_EN = {
     "%n message(s)": ["%n message", "%n messages"],
     "%n call(s)": ["%n call", "%n calls"],
     "%n SMS": ["%n SMS", "%n SMS"],
-    "%n MMS cannot be restored yet and are left out.": [
-        "%n MMS cannot be restored yet and is left out.",
-        "%n MMS cannot be restored yet and are left out."],
+    "%n MMS": ["%n MMS", "%n MMS"],
+    "%n attachment(s) could not be read and are missing in the backup.": [
+        "%n attachment could not be read and is missing in the backup.",
+        "%n attachments could not be read and are missing in the backup."],
+    "%n attachment(s) of MMS are not in the backup (it was made without them). Their messages are restored without them.": [
+        "%n attachment of an MMS is not in the backup (it was made without attachments). Its message is restored without it.",
+        "%n attachments of MMS are not in the backup (it was made without attachments). Their messages are restored without them."],
 }
 
 PLURAL_DE = {
     "%n message(s)": ["%n Nachricht", "%n Nachrichten"],
     "%n call(s)": ["%n Anruf", "%n Anrufe"],
     "%n SMS": ["%n SMS", "%n SMS"],
-    "%n MMS cannot be restored yet and are left out.": [
-        "%n MMS kann noch nicht wiederhergestellt werden und wird ausgelassen.",
-        "%n MMS können noch nicht wiederhergestellt werden und werden ausgelassen."],
+    "%n MMS": ["%n MMS", "%n MMS"],
+    "%n attachment(s) could not be read and are missing in the backup.": [
+        "%n Anhang konnte nicht gelesen werden und fehlt in der Sicherung.",
+        "%n Anhänge konnten nicht gelesen werden und fehlen in der Sicherung."],
+    "%n attachment(s) of MMS are not in the backup (it was made without them). Their messages are restored without them.": [
+        "%n Anhang einer MMS ist nicht in der Sicherung (sie wurde ohne Anhänge gemacht). Die Nachricht wird ohne ihn wiederhergestellt.",
+        "%n Anhänge von MMS sind nicht in der Sicherung (sie wurde ohne Anhänge gemacht). Die Nachrichten werden ohne sie wiederhergestellt."],
 }
 
 DE = {
@@ -39,8 +47,6 @@ DE = {
     "Back up": "Sichern",
     "On this phone: %1 and %2.": "Auf diesem Telefon: %1 und %2.",
     "Messages": "Nachrichten",
-    "SMS. MMS are not included yet.": "SMS. MMS werden noch nicht gesichert.",
-    "SMS, saved in sms-<date>.xml": "SMS, gespeichert in sms-<Datum>.xml",
     "Call log": "Anrufliste",
     "Saved in calls-<date>.xml": "Gespeichert in calls-<Datum>.xml",
     "Contact names": "Kontaktnamen",
@@ -52,19 +58,54 @@ DE = {
     "Restore": "Wiederherstellen",
     "Tap a backup to see what it contains. Only what is not on the phone yet is restored.":
         "Eine Sicherung antippen, um ihren Inhalt zu sehen. Wiederhergestellt wird nur, was noch nicht auf dem Telefon ist.",
-    "No backups in this folder yet. Backups of SMS Backup & Restore on Android work too: copy their sms-….xml and calls-….xml files into this folder, or choose them with “Restore from files” in the pull-down menu.":
-        "Noch keine Sicherungen in diesem Ordner. Sicherungen von SMS Backup & Restore unter Android gehen auch: deren Dateien sms-….xml und calls-….xml in diesen Ordner kopieren oder mit „Aus Dateien wiederherstellen“ im Aufziehmenü auswählen.",
+    "No backups in this folder yet. Backups of SMS Backup & Restore on Android work too: copy their XML files into this folder, or choose them with “Restore from files” in the pull-down menu.":
+        "Noch keine Sicherungen in diesem Ordner. Sicherungen von SMS Backup & Restore unter Android gehen auch: deren XML-Dateien in diesen Ordner kopieren oder mit „Aus Dateien wiederherstellen“ im Aufziehmenü auswählen.",
     "Delete": "Löschen",
     "Deleting": "Wird gelöscht",
     "Backup folder": "Ordner für Sicherungen",
     "Backup files": "Sicherungsdateien",
     "Saved %1 and %2.": "%1 und %2 gespeichert.",
+    "On this phone: %1, %2 and %3.": "Auf diesem Telefon: %1, %2 und %3.",
+    "SMS and MMS, saved in sms.xml": "SMS und MMS, gespeichert in sms.xml",
+    "SMS and MMS, saved in sms-<date>.xml": "SMS und MMS, gespeichert in sms-<Datum>.xml",
+    "Saved in calls.xml": "Gespeichert in calls.xml",
+    "Add to the same files": "Zu denselben Dateien hinzufügen",
+    "Each backup adds what is new to sms.xml and calls.xml. They keep everything, also what was deleted on the phone.":
+        "Jede Sicherung fügt Neues zu sms.xml und calls.xml hinzu. Sie behalten alles, auch was auf dem Telefon gelöscht wurde.",
+    "Each backup writes new files with everything that is on the phone.":
+        "Jede Sicherung schreibt neue Dateien mit allem, was auf dem Telefon ist.",
+    "Automatic backup": "Automatische Sicherung",
+    "The automatic backup of %1 failed: %2": "Die automatische Sicherung vom %1 ist fehlgeschlagen: %2",
+    "each backup adds to them": "jede Sicherung ergänzt sie",
+    "Nothing new since the last backup.": "Nichts Neues seit der letzten Sicherung.",
+    "Added %1 and %2.": "%1 und %2 hinzugefügt.",
+    "Daily at %1": "Täglich um %1",
+    "Every %1 at %2": "Jeden %1 um %2",
+    "Monthly on day %1 at %2": "Monatlich am %1. um %2",
+    "Off": "Aus",
+    # automatic backup page
+    "Never": "Nie",
+    "Every day": "Jeden Tag",
+    "Every week": "Jede Woche",
+    "Every month": "Jeden Monat",
+    "Day": "Tag",
+    "Day of the month": "Tag im Monat",
+    "In months without day %1, on their last day.": "In Monaten ohne %1. Tag am letzten Tag des Monats.",
+    "Time": "Uhrzeit",
+    "Next backup: as soon as possible": "Nächste Sicherung: so bald wie möglich",
+    "Next backup: %1": "Nächste Sicherung: %1",
+    "The backup runs in the background, also when the app is closed, and uses the choices of the main page: what to back up, the folder and whether to add to the same files. It starts within 15 minutes of the time set, or, if the phone is switched off or asleep then, as soon as it is on again. If it fails, a notification tells why.":
+        "Die Sicherung läuft im Hintergrund, auch wenn die App geschlossen ist, mit den Einstellungen der Hauptseite: was gesichert wird, der Ordner und ob zu denselben Dateien hinzugefügt wird. Sie beginnt bis zu 15 Minuten nach der eingestellten Zeit oder, wenn das Telefon dann ausgeschaltet ist oder schläft, sobald es wieder an ist. Schlägt sie fehl, sagt eine Benachrichtigung warum.",
+    "Last automatic backup": "Letzte automatische Sicherung",
+    "When": "Wann",
+    "Automatic backup failed": "Automatische Sicherung fehlgeschlagen",
     "Backing up %1%": "Sicherung %1 %",
     "Restoring %1%": "Wiederherstellung %1 %",
     # restore page
     "Left out: %1 %2": "Ausgelassen: %1 %2",
     "Restored %1 and %2.": "%1 und %2 wiederhergestellt.",
     "Messages in the backup": "Nachrichten in der Sicherung",
+    "MMS among them": "Davon MMS",
     "New for this phone": "Neu für dieses Telefon",
     "Calls in the backup": "Anrufe in der Sicherung",
     "From": "Von",
@@ -80,8 +121,8 @@ DE = {
         "Bitte die App geöffnet lassen, bis die Wiederherstellung fertig ist.",
     "They are in the Messages and Phone apps now.": "Sie sind jetzt in den Apps Nachrichten und Telefon.",
     # about page
-    "Backs up your SMS and call log in the XML format of the Android app SMS Backup & Restore, and restores such backups. Move your history between Android and Sailfish OS in both directions, or keep a copy of it.":
-        "Sichert SMS und Anrufliste im XML-Format der Android-App SMS Backup & Restore und stellt solche Sicherungen wieder her. So zieht der Verlauf in beide Richtungen zwischen Android und Sailfish OS um, oder es bleibt einfach eine Kopie.",
+    "Backs up your SMS, MMS and call log in the XML format of the Android app SMS Backup & Restore, and restores such backups, also their RCS chats. Move your history between Android and Sailfish OS in both directions, or keep a copy of it, by hand or automatically.":
+        "Sichert SMS, MMS und Anrufliste im XML-Format der Android-App SMS Backup & Restore und stellt solche Sicherungen wieder her, auch ihre RCS-Chats. So zieht der Verlauf in beide Richtungen zwischen Android und Sailfish OS um, oder es bleibt eine Kopie, von Hand oder automatisch.",
     "Restoring only adds what is not on the phone yet, so restoring a backup twice does no harm. Restored messages go into the existing conversations of the Messages app.":
         "Beim Wiederherstellen kommt nur hinzu, was noch nicht auf dem Telefon ist. Eine Sicherung zweimal wiederherzustellen schadet daher nicht. Wiederhergestellte Nachrichten landen in den vorhandenen Unterhaltungen der Nachrichten-App.",
     "Not affiliated with SyncTech, the maker of SMS Backup & Restore. Its file format is documented on synctech.com.au.":
@@ -100,11 +141,24 @@ DE = {
     "Cannot create the folder %1.": "Der Ordner %1 kann nicht angelegt werden.",
     "Cannot write %1: %2": "%1 kann nicht geschrieben werden: %2",
     "Writing %1 failed: %2": "Schreiben von %1 fehlgeschlagen: %2",
+    "Another backup is running at the moment. Please try again in a minute.":
+        "Gerade läuft schon eine Sicherung. Bitte in einer Minute noch einmal versuchen.",
+    "%1 cannot be read, so it was left as it is: %2 Move it away to start a new one.":
+        "%1 kann nicht gelesen werden und wurde deshalb nicht verändert: %2 Für eine neue Datei die alte woanders hin verschieben.",
+    "%1 is not a backup of %2, so it was left as it is. Move it away to start a new one.":
+        "%1 ist keine Sicherung von %2 und wurde deshalb nicht verändert. Für eine neue Datei die alte woanders hin verschieben.",
+    "messages": "Nachrichten",
+    "calls": "Anrufen",
+    "%1 cannot be read, so it was left as it is: %2": "%1 kann nicht gelesen werden und wurde deshalb nicht verändert: %2",
+    "%1 was changed during the backup, so it was left as it is. Please try again.":
+        "%1 wurde während der Sicherung verändert und deshalb nicht angefasst. Bitte noch einmal versuchen.",
+    "Storing the attachment %1 failed.": "Der Anhang %1 konnte nicht gespeichert werden.",
     # restore task
     "No backup file selected.": "Keine Sicherungsdatei ausgewählt.",
     "Reading the backup": "Sicherung wird gelesen",
     "Reading %1": "%1 wird gelesen",
-    "Comparing with the history on the phone": "Abgleich mit dem Verlauf auf dem Telefon",
+    "Reading the history on the phone": "Verlauf auf dem Telefon wird gelesen",
+    "Storing the attachments of the backup failed: %1": "Die Anhänge der Sicherung konnten nicht gespeichert werden: %1",
     # database
     "There is no message database at %1.": "Unter %1 gibt es keine Nachrichtendatenbank.",
     "Cannot open the message database: %1": "Die Nachrichtendatenbank lässt sich nicht öffnen: %1",
@@ -122,6 +176,8 @@ DE = {
     "entries without a phone number": "Einträge ohne Telefonnummer",
     "entries without a date": "Einträge ohne Datum",
     "entries of an unknown type": "Einträge unbekannter Art",
+    "MMS notifications and reports": "MMS-Benachrichtigungen und -Berichte",
+    "MMS without text or attachments": "MMS ohne Text und Anhänge",
     # files
     "Cannot open %1: %2": "%1 lässt sich nicht öffnen: %2",
     "%1 is not a backup of SMS Backup & Restore.": "%1 ist keine Sicherung von SMS Backup & Restore.",

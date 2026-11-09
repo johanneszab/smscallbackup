@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Johannes Meyer zum Alten Borgloh
+# SPDX-License-Identifier: MIT
+#
+# The automatic backup of SMS & Call Backup. Started by smscallbackup-scheduled.timer;
+# backs up if a backup time set in the app has passed since the last automatic backup.
+[Unit]
+Description=Automatic backup of SMS, MMS and calls (SMS & Call Backup)
+# Only while automatic backups are switched on in the app
+ConditionPathExists=%h/.config/de.jzab/smscallbackup/schedule-active
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/smscallbackup --scheduled
+Nice=10
+IOSchedulingClass=idle

@@ -74,6 +74,19 @@ bool HistoryStore::exists()
     return QFile::exists(defaultPath());
 }
 
+QString HistoryStore::commhistoryDir()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QStringLiteral("/commhistory");
+}
+
+QString HistoryStore::stagingRoot()
+{
+    return commhistoryDir() + QStringLiteral("/smscallbackup-restore");
+}
+
+const char *const HistoryStore::MmsMessageIdProperty = "smscallbackup-m_id";
+const char *const HistoryStore::MmsTransactionIdProperty = "smscallbackup-tr_id";
+
 bool HistoryStore::open(QString *error)
 {
     if (!QFile::exists(m_path)) {
@@ -89,8 +102,8 @@ bool HistoryStore::open(QString *error)
     }
     QSqlQuery query(db);
     if (!exec(query, QStringLiteral("SELECT id, type, startTime, endTime, direction, isRead, "
-                                    "isMissedCall, status, localUid, remoteUid, freeText, groupId "
-                                    "FROM Events LIMIT 0"), error)) {
+                                    "isMissedCall, status, localUid, remoteUid, freeText, groupId, "
+                                    "subject, headers FROM Events LIMIT 0"), error)) {
         *error = tr("The message database has an unexpected layout: %1").arg(query.lastError().text());
         return false;
     }
@@ -124,25 +137,69 @@ bool HistoryStore::readEvents(const QList<int> &types, const std::function<bool(
 
     QHash<int, QString> incomingStatus;
     QHash<int, QString> subscriberIdentity;
+    QHash<int, QString> mmsMessageId;
+    QHash<int, QString> mmsTransactionId;
     {
         QSqlQuery query(db);
         if (!exec(query, QStringLiteral("SELECT eventId, key, value FROM EventProperties "
-                                        "WHERE key IN ('incomingStatus', 'subscriberIdentity')"), error)) {
+                                        "WHERE key IN ('incomingStatus', 'subscriberIdentity', '%1', '%2')")
+                  .arg(QLatin1String(MmsMessageIdProperty), QLatin1String(MmsTransactionIdProperty)), error)) {
             db.rollback();
             return false;
         }
         while (query.next()) {
-            if (query.value(1).toString() == QLatin1String("incomingStatus"))
-                incomingStatus.insert(query.value(0).toInt(), query.value(2).toString());
+            const int id = query.value(0).toInt();
+            const QString key = query.value(1).toString();
+            const QString value = query.value(2).toString();
+            if (key == QLatin1String("incomingStatus"))
+                incomingStatus.insert(id, value);
+            else if (key == QLatin1String("subscriberIdentity"))
+                subscriberIdentity.insert(id, value);
+            else if (key == QLatin1String(MmsMessageIdProperty))
+                mmsMessageId.insert(id, value);
             else
-                subscriberIdentity.insert(query.value(0).toInt(), query.value(2).toString());
+                mmsTransactionId.insert(id, value);
+        }
+    }
+
+    // Members of group conversations (several remoteUids)
+    QHash<int, QStringList> groupMembers;
+    {
+        QSqlQuery query(db);
+        if (!exec(query, QStringLiteral("SELECT id, remoteUids FROM Groups"), error)) {
+            db.rollback();
+            return false;
+        }
+        while (query.next()) {
+            const QStringList remoteUids = query.value(1).toString().split(QLatin1Char('\n'), QString::SkipEmptyParts);
+            if (remoteUids.size() > 1)
+                groupMembers.insert(query.value(0).toInt(), remoteUids);
+        }
+    }
+
+    QHash<int, QList<HistoryPart> > parts;
+    if (types.contains(HistoryEvent::MmsEvent)) {
+        QSqlQuery query(db);
+        if (!exec(query, QStringLiteral("SELECT p.eventId, p.contentId, p.contentType, p.path FROM MessageParts p "
+                                        "JOIN Events e ON e.id = p.eventId WHERE e.type = 6 "
+                                        "ORDER BY p.eventId, p.id"), error)) {
+            db.rollback();
+            return false;
+        }
+        while (query.next()) {
+            HistoryPart part;
+            part.contentId = query.value(1).toString();
+            part.contentType = query.value(2).toString();
+            part.path = query.value(3).toString();
+            part.fileName = part.path.section(QLatin1Char('/'), -1);
+            parts[query.value(0).toInt()].append(part);
         }
     }
 
     QSqlQuery query(db);
     const QString sql = QStringLiteral(
             "SELECT id, type, startTime, endTime, direction, isDraft, isRead, isMissedCall, status, "
-            "localUid, remoteUid, subject, freeText FROM Events "
+            "localUid, remoteUid, subject, freeText, groupId, headers FROM Events "
             "WHERE type IN (%1) AND (isDeleted IS NULL OR isDeleted = 0) "
             "ORDER BY (CASE type WHEN 3 THEN startTime ELSE endTime END), id").arg(typeList(types));
     if (!exec(query, sql, error)) {
@@ -166,6 +223,25 @@ bool HistoryStore::readEvents(const QList<int> &types, const std::function<bool(
         e.freeText = query.value(12).toString();
         e.incomingStatus = incomingStatus.value(e.id);
         e.subscriberIdentity = subscriberIdentity.value(e.id);
+        if (e.isMessage())
+            e.participants = groupMembers.value(query.value(13).toInt());
+        if (e.isMms()) {
+            e.parts = parts.value(e.id);
+            // libcommhistory's headers column: key \x1d value, entries split by \x1c,
+            // addresses in a value split by \x1e.
+            for (const QString &header : query.value(14).toString().split(QLatin1Char('\x1c'), QString::SkipEmptyParts)) {
+                const QString key = header.section(QLatin1Char('\x1d'), 0, 0);
+                const QStringList value = header.section(QLatin1Char('\x1d'), 1).split(QLatin1Char('\x1e'), QString::SkipEmptyParts);
+                if (key == QLatin1String("x-mms-to"))
+                    e.toList = value;
+                else if (key == QLatin1String("x-mms-cc"))
+                    e.ccList = value;
+                else if (key == QLatin1String("x-mms-bcc"))
+                    e.bccList = value;
+            }
+            e.mmsMessageId = mmsMessageId.value(e.id);
+            e.mmsTransactionId = mmsTransactionId.value(e.id);
+        }
         if (!callback(e))
             break;
     }
@@ -177,7 +253,7 @@ bool HistoryStore::duplicateKeys(QSet<QByteArray> *keys, QString *error)
 {
     QSqlQuery query(QSqlDatabase::database(m_connection));
     if (!exec(query, QStringLiteral("SELECT type, direction, startTime, endTime, remoteUid, freeText, "
-                                    "isMissedCall FROM Events WHERE type IN (2, 3, 6)"), error))
+                                    "isMissedCall, subject FROM Events WHERE type IN (2, 3, 6)"), error))
         return false;
     while (query.next()) {
         HistoryEvent e;
@@ -188,13 +264,14 @@ bool HistoryStore::duplicateKeys(QSet<QByteArray> *keys, QString *error)
         e.remoteUid = query.value(4).toString();
         e.freeText = query.value(5).toString();
         e.isMissedCall = query.value(6).toInt() != 0;
+        e.subject = query.value(7).toString();
         keys->insert(Mapping::duplicateKey(e));
     }
     return true;
 }
 
-bool HistoryStore::groupsOf(const QString &localUid, const std::function<QString(const QString &)> &keyOf,
-                            QHash<QString, int> *groups, QString *error)
+bool HistoryStore::conversations(const QString &localUid, const std::function<QString(const QStringList &)> &keyOf,
+                                 QHash<QString, int> *groups, QString *error)
 {
     QSqlQuery query(QSqlDatabase::database(m_connection));
     query.setForwardOnly(true);
@@ -205,10 +282,10 @@ bool HistoryStore::groupsOf(const QString &localUid, const std::function<QString
         return false;
     }
     while (query.next()) {
-        const QStringList remoteUids = query.value(1).toString().split(QLatin1Char('\n'));
-        if (remoteUids.size() != 1 || remoteUids.first().isEmpty())
-            continue;   // group chats: Sailfish OS files SMS only into one-to-one conversations
-        const QString key = keyOf(remoteUids.first());
+        const QStringList remoteUids = query.value(1).toString().split(QLatin1Char('\n'), QString::SkipEmptyParts);
+        if (remoteUids.isEmpty())
+            continue;
+        const QString key = keyOf(remoteUids);
         if (!groups->contains(key))
             groups->insert(key, query.value(0).toInt());
     }

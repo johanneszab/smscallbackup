@@ -16,10 +16,6 @@
             <translation>Version %1</translation>
         </message>
         <message>
-            <source>Backs up your SMS and call log in the XML format of the Android app SMS Backup &amp; Restore, and restores such backups. Move your history between Android and Sailfish OS in both directions, or keep a copy of it.</source>
-            <translation>Sichert SMS und Anrufliste im XML-Format der Android-App SMS Backup &amp; Restore und stellt solche Sicherungen wieder her. So zieht der Verlauf in beide Richtungen zwischen Android und Sailfish OS um, oder es bleibt einfach eine Kopie.</translation>
-        </message>
-        <message>
             <source>Restoring only adds what is not on the phone yet, so restoring a backup twice does no harm. Restored messages go into the existing conversations of the Messages app.</source>
             <translation>Beim Wiederherstellen kommt nur hinzu, was noch nicht auf dem Telefon ist. Eine Sicherung zweimal wiederherzustellen schadet daher nicht. Wiederhergestellte Nachrichten landen in den vorhandenen Unterhaltungen der Nachrichten-App.</translation>
         </message>
@@ -43,6 +39,10 @@
             <source>Source code</source>
             <extracomment>Opens the project page in the browser</extracomment>
             <translation>Quellcode</translation>
+        </message>
+        <message>
+            <source>Backs up your SMS, MMS and call log in the XML format of the Android app SMS Backup &amp; Restore, and restores such backups, also their RCS chats. Move your history between Android and Sailfish OS in both directions, or keep a copy of it, by hand or automatically.</source>
+            <translation>Sichert SMS, MMS und Anrufliste im XML-Format der Android-App SMS Backup &amp; Restore und stellt solche Sicherungen wieder her, auch ihre RCS-Chats. So zieht der Verlauf in beide Richtungen zwischen Android und Sailfish OS um, oder es bleibt eine Kopie, von Hand oder automatisch.</translation>
         </message>
     </context>
     <context>
@@ -78,6 +78,45 @@
         <message>
             <source>Writing %1 failed: %2</source>
             <translation>Schreiben von %1 fehlgeschlagen: %2</translation>
+        </message>
+        <message>
+            <source>%1 cannot be read, so it was left as it is: %2 Move it away to start a new one.</source>
+            <translation>%1 kann nicht gelesen werden und wurde deshalb nicht verändert: %2 Für eine neue Datei die alte woanders hin verschieben.</translation>
+        </message>
+        <message>
+            <source>%1 is not a backup of %2, so it was left as it is. Move it away to start a new one.</source>
+            <translation>%1 ist keine Sicherung von %2 und wurde deshalb nicht verändert. Für eine neue Datei die alte woanders hin verschieben.</translation>
+        </message>
+        <message>
+            <source>messages</source>
+            <translation>Nachrichten</translation>
+        </message>
+        <message>
+            <source>calls</source>
+            <translation>Anrufen</translation>
+        </message>
+        <message>
+            <source>%1 cannot be read, so it was left as it is: %2</source>
+            <translation>%1 kann nicht gelesen werden und wurde deshalb nicht verändert: %2</translation>
+        </message>
+        <message>
+            <source>%1 was changed during the backup, so it was left as it is. Please try again.</source>
+            <translation>%1 wurde während der Sicherung verändert und deshalb nicht angefasst. Bitte noch einmal versuchen.</translation>
+        </message>
+        <message>
+            <source>Another backup is running at the moment. Please try again in a minute.</source>
+            <translation>Gerade läuft schon eine Sicherung. Bitte in einer Minute noch einmal versuchen.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Cli</name>
+        <message>
+            <source>SMS &amp; Call Backup</source>
+            <translation>SMS &amp; Call Backup</translation>
+        </message>
+        <message>
+            <source>Automatic backup failed</source>
+            <translation>Automatische Sicherung fehlgeschlagen</translation>
         </message>
     </context>
     <context>
@@ -141,6 +180,14 @@
             <source>Writing to the message database failed.</source>
             <translation>Schreiben in die Nachrichtendatenbank fehlgeschlagen.</translation>
         </message>
+        <message>
+            <source>Cannot create the folder %1.</source>
+            <translation>Der Ordner %1 kann nicht angelegt werden.</translation>
+        </message>
+        <message>
+            <source>Storing the attachment %1 failed.</source>
+            <translation>Der Anhang %1 konnte nicht gespeichert werden.</translation>
+        </message>
     </context>
     <context>
         <name>MainPage</name>
@@ -201,15 +248,6 @@
             <translation>Nachrichten</translation>
         </message>
         <message>
-            <source>SMS. MMS are not included yet.</source>
-            <extracomment>Description of the "Messages" switch</extracomment>
-            <translation>SMS. MMS werden noch nicht gesichert.</translation>
-        </message>
-        <message>
-            <source>SMS, saved in sms-&lt;date&gt;.xml</source>
-            <translation>SMS, gespeichert in sms-&lt;Datum&gt;.xml</translation>
-        </message>
-        <message>
             <source>Call log</source>
             <translation>Anrufliste</translation>
         </message>
@@ -247,10 +285,6 @@
             <translation>Eine Sicherung antippen, um ihren Inhalt zu sehen. Wiederhergestellt wird nur, was noch nicht auf dem Telefon ist.</translation>
         </message>
         <message>
-            <source>No backups in this folder yet. Backups of SMS Backup &amp; Restore on Android work too: copy their sms-….xml and calls-….xml files into this folder, or choose them with “Restore from files” in the pull-down menu.</source>
-            <translation>Noch keine Sicherungen in diesem Ordner. Sicherungen von SMS Backup &amp; Restore unter Android gehen auch: deren Dateien sms-….xml und calls-….xml in diesen Ordner kopieren oder mit „Aus Dateien wiederherstellen“ im Aufziehmenü auswählen.</translation>
-        </message>
-        <message>
             <source>Delete</source>
             <translation>Löschen</translation>
         </message>
@@ -267,6 +301,62 @@
             <source>Backup files</source>
             <extracomment>File picker title</extracomment>
             <translation>Sicherungsdateien</translation>
+        </message>
+        <message>
+            <source>On this phone: %1, %2 and %3.</source>
+            <extracomment>%1, %2 and %3 are e.g. "120 SMS", "4 MMS" and "35 calls"</extracomment>
+            <translation>Auf diesem Telefon: %1, %2 und %3.</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n MMS</source>
+            <translation>
+                <numerusform>%n MMS</numerusform>
+                <numerusform>%n MMS</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>SMS and MMS, saved in sms.xml</source>
+            <extracomment>Description of the "Messages" switch</extracomment>
+            <translation>SMS und MMS, gespeichert in sms.xml</translation>
+        </message>
+        <message>
+            <source>SMS and MMS, saved in sms-&lt;date&gt;.xml</source>
+            <translation>SMS und MMS, gespeichert in sms-&lt;Datum&gt;.xml</translation>
+        </message>
+        <message>
+            <source>Saved in calls.xml</source>
+            <translation>Gespeichert in calls.xml</translation>
+        </message>
+        <message>
+            <source>Add to the same files</source>
+            <extracomment>Switch: incremental backups into the same two files</extracomment>
+            <translation>Zu denselben Dateien hinzufügen</translation>
+        </message>
+        <message>
+            <source>Each backup adds what is new to sms.xml and calls.xml. They keep everything, also what was deleted on the phone.</source>
+            <translation>Jede Sicherung fügt Neues zu sms.xml und calls.xml hinzu. Sie behalten alles, auch was auf dem Telefon gelöscht wurde.</translation>
+        </message>
+        <message>
+            <source>Each backup writes new files with everything that is on the phone.</source>
+            <translation>Jede Sicherung schreibt neue Dateien mit allem, was auf dem Telefon ist.</translation>
+        </message>
+        <message>
+            <source>Automatic backup</source>
+            <translation>Automatische Sicherung</translation>
+        </message>
+        <message>
+            <source>The automatic backup of %1 failed: %2</source>
+            <extracomment>%1 is when, %2 the reason</extracomment>
+            <translation>Die automatische Sicherung vom %1 ist fehlgeschlagen: %2</translation>
+        </message>
+        <message>
+            <source>No backups in this folder yet. Backups of SMS Backup &amp; Restore on Android work too: copy their XML files into this folder, or choose them with “Restore from files” in the pull-down menu.</source>
+            <translation>Noch keine Sicherungen in diesem Ordner. Sicherungen von SMS Backup &amp; Restore unter Android gehen auch: deren XML-Dateien in diesen Ordner kopieren oder mit „Aus Dateien wiederherstellen“ im Aufziehmenü auswählen.</translation>
+        </message>
+        <message>
+            <source>each backup adds to them</source>
+            <extracomment>After the file names of sms.xml and calls.xml</extracomment>
+            <translation>jede Sicherung ergänzt sie</translation>
         </message>
     </context>
     <context>
@@ -291,16 +381,17 @@
             <source>entries of an unknown type</source>
             <translation>Einträge unbekannter Art</translation>
         </message>
+        <message>
+            <source>MMS notifications and reports</source>
+            <translation>MMS-Benachrichtigungen und -Berichte</translation>
+        </message>
+        <message>
+            <source>MMS without text or attachments</source>
+            <translation>MMS ohne Text und Anhänge</translation>
+        </message>
     </context>
     <context>
         <name>RestorePage</name>
-        <message numerus="yes">
-            <source>%n MMS cannot be restored yet and are left out.</source>
-            <translation>
-                <numerusform>%n MMS kann noch nicht wiederhergestellt werden und wird ausgelassen.</numerusform>
-                <numerusform>%n MMS können noch nicht wiederhergestellt werden und werden ausgelassen.</numerusform>
-            </translation>
-        </message>
         <message>
             <source>Left out: %1 %2</source>
             <extracomment>e.g. "Left out: 3 drafts"</extracomment>
@@ -389,6 +480,18 @@
             <source>They are in the Messages and Phone apps now.</source>
             <translation>Sie sind jetzt in den Apps Nachrichten und Telefon.</translation>
         </message>
+        <message numerus="yes">
+            <source>%n attachment(s) of MMS are not in the backup (it was made without them). Their messages are restored without them.</source>
+            <translation>
+                <numerusform>%n Anhang einer MMS ist nicht in der Sicherung (sie wurde ohne Anhänge gemacht). Die Nachricht wird ohne ihn wiederhergestellt.</numerusform>
+                <numerusform>%n Anhänge von MMS sind nicht in der Sicherung (sie wurde ohne Anhänge gemacht). Die Nachrichten werden ohne sie wiederhergestellt.</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>MMS among them</source>
+            <extracomment>Number of MMS among the messages of the backup</extracomment>
+            <translation>Davon MMS</translation>
+        </message>
     </context>
     <context>
         <name>RestoreTask</name>
@@ -409,8 +512,16 @@
             <translation>%1 wird gelesen</translation>
         </message>
         <message>
-            <source>Comparing with the history on the phone</source>
-            <translation>Abgleich mit dem Verlauf auf dem Telefon</translation>
+            <source>Reading the history on the phone</source>
+            <translation>Verlauf auf dem Telefon wird gelesen</translation>
+        </message>
+        <message>
+            <source>Cannot create the folder %1.</source>
+            <translation>Der Ordner %1 kann nicht angelegt werden.</translation>
+        </message>
+        <message>
+            <source>Storing the attachments of the backup failed: %1</source>
+            <translation>Die Anhänge der Sicherung konnten nicht gespeichert werden: %1</translation>
         </message>
     </context>
     <context>
@@ -437,6 +548,101 @@
         <message>
             <source>Writing the backup failed.</source>
             <translation>Schreiben der Sicherung fehlgeschlagen.</translation>
+        </message>
+    </context>
+    <context>
+        <name>SchedulePage</name>
+        <message>
+            <source>Saved %1 and %2.</source>
+            <translation>%1 und %2 gespeichert.</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n message(s)</source>
+            <translation>
+                <numerusform>%n Nachricht</numerusform>
+                <numerusform>%n Nachrichten</numerusform>
+            </translation>
+        </message>
+        <message numerus="yes">
+            <source>%n call(s)</source>
+            <translation>
+                <numerusform>%n Anruf</numerusform>
+                <numerusform>%n Anrufe</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Nothing new since the last backup.</source>
+            <translation>Nichts Neues seit der letzten Sicherung.</translation>
+        </message>
+        <message>
+            <source>Added %1 and %2.</source>
+            <translation>%1 und %2 hinzugefügt.</translation>
+        </message>
+        <message>
+            <source>Automatic backup</source>
+            <translation>Automatische Sicherung</translation>
+        </message>
+        <message>
+            <source>Back up</source>
+            <extracomment>How often the automatic backup runs</extracomment>
+            <translation>Sichern</translation>
+        </message>
+        <message>
+            <source>Never</source>
+            <extracomment>Automatic backup</extracomment>
+            <translation>Nie</translation>
+        </message>
+        <message>
+            <source>Every day</source>
+            <translation>Jeden Tag</translation>
+        </message>
+        <message>
+            <source>Every week</source>
+            <translation>Jede Woche</translation>
+        </message>
+        <message>
+            <source>Every month</source>
+            <translation>Jeden Monat</translation>
+        </message>
+        <message>
+            <source>Day</source>
+            <extracomment>Day of the week of the automatic backup</extracomment>
+            <translation>Tag</translation>
+        </message>
+        <message>
+            <source>Day of the month</source>
+            <extracomment>Day of the month of the automatic backup</extracomment>
+            <translation>Tag im Monat</translation>
+        </message>
+        <message>
+            <source>In months without day %1, on their last day.</source>
+            <translation>In Monaten ohne %1. Tag am letzten Tag des Monats.</translation>
+        </message>
+        <message>
+            <source>Time</source>
+            <extracomment>Time of day of the automatic backup</extracomment>
+            <translation>Uhrzeit</translation>
+        </message>
+        <message>
+            <source>Next backup: as soon as possible</source>
+            <translation>Nächste Sicherung: so bald wie möglich</translation>
+        </message>
+        <message>
+            <source>Next backup: %1</source>
+            <extracomment>%1 is a date and time</extracomment>
+            <translation>Nächste Sicherung: %1</translation>
+        </message>
+        <message>
+            <source>The backup runs in the background, also when the app is closed, and uses the choices of the main page: what to back up, the folder and whether to add to the same files. It starts within 15 minutes of the time set, or, if the phone is switched off or asleep then, as soon as it is on again. If it fails, a notification tells why.</source>
+            <translation>Die Sicherung läuft im Hintergrund, auch wenn die App geschlossen ist, mit den Einstellungen der Hauptseite: was gesichert wird, der Ordner und ob zu denselben Dateien hinzugefügt wird. Sie beginnt bis zu 15 Minuten nach der eingestellten Zeit oder, wenn das Telefon dann ausgeschaltet ist oder schläft, sobald es wieder an ist. Schlägt sie fehl, sagt eine Benachrichtigung warum.</translation>
+        </message>
+        <message>
+            <source>Last automatic backup</source>
+            <translation>Letzte automatische Sicherung</translation>
+        </message>
+        <message>
+            <source>When</source>
+            <translation>Wann</translation>
         </message>
     </context>
     <context>
@@ -540,6 +746,42 @@
             <translation>
                 <numerusform>%n Anruf</numerusform>
                 <numerusform>%n Anrufe</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Nothing new since the last backup.</source>
+            <translation>Nichts Neues seit der letzten Sicherung.</translation>
+        </message>
+        <message>
+            <source>Added %1 and %2.</source>
+            <extracomment>Shown after a backup that added to sms.xml and calls.xml, %1 and %2 are e.g. "3 messages" and "1 call"</extracomment>
+            <translation>%1 und %2 hinzugefügt.</translation>
+        </message>
+        <message>
+            <source>Daily at %1</source>
+            <extracomment>Automatic backup, %1 is a time</extracomment>
+            <translation>Täglich um %1</translation>
+        </message>
+        <message>
+            <source>Every %1 at %2</source>
+            <extracomment>Automatic backup, %1 is a day of the week, %2 a time</extracomment>
+            <translation>Jeden %1 um %2</translation>
+        </message>
+        <message>
+            <source>Monthly on day %1 at %2</source>
+            <extracomment>Automatic backup, %1 is a day of the month (1-31), %2 a time</extracomment>
+            <translation>Monatlich am %1. um %2</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <extracomment>Automatic backup</extracomment>
+            <translation>Aus</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n attachment(s) could not be read and are missing in the backup.</source>
+            <translation>
+                <numerusform>%n Anhang konnte nicht gelesen werden und fehlt in der Sicherung.</numerusform>
+                <numerusform>%n Anhänge konnten nicht gelesen werden und fehlen in der Sicherung.</numerusform>
             </translation>
         </message>
     </context>

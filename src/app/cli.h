@@ -4,10 +4,11 @@
 #ifndef CLI_H
 #define CLI_H
 
-// Command-line mode, e.g. for scheduled backups:
-//   smscallbackup --backup [FOLDER]
+// Command-line mode:
+//   smscallbackup --backup [FOLDER] [--incremental | --new-files]
 //   smscallbackup --restore FILE... [--sim N] [--keep-unread] [--dry-run]
 //   smscallbackup --info FILE...
+//   smscallbackup --scheduled [--force]   (the automatic backup, run by a systemd timer)
 namespace Cli {
 
 bool wanted(int argc, char **argv);

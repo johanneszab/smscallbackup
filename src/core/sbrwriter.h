@@ -27,11 +27,15 @@ public:
     SbrWriter(QIODevice *device, Kind kind);
 
     // count: number of records that will follow; backupSet: an id shared by the files of
-    // one backup run; backupDate: ms since the epoch; creator: e.g. "SMS & Call Backup 1.0".
-    bool begin(int count, const QString &backupSet, qint64 backupDate, const QString &creator);
+    // one backup run; backupDate: ms since the epoch; creator: e.g. "SMS & Call Backup 1.0";
+    // type: "full" for a complete backup, "archive" for a file that each backup adds to.
+    bool begin(int count, const QString &backupSet, qint64 backupDate, const QString &creator,
+               const QString &type = QStringLiteral("full"));
     bool writeSms(const Sbr::SmsRecord &record);
     bool writeCall(const Sbr::CallRecord &record);
     bool writeMms(const Sbr::MmsRecord &record);
+    // An <sms> or <call> exactly as it was read (all attributes, in their order).
+    bool writeElement(const char *name, const Sbr::AttributeList &attributes);
     bool end();
 
     QString errorString() const { return m_error; }

@@ -11,6 +11,7 @@
 #include <QObject>
 #include <QScopedPointer>
 #include <QString>
+#include <QStringList>
 
 namespace CommHistory {
 class EventModel;
@@ -19,8 +20,14 @@ class GroupManager;
 
 // Adds events to the communication history through libcommhistory, the way commhistoryd
 // and the Phone app store them: messages go into the existing conversation with the
-// same number (or a new one), calls into the call log. libcommhistory announces every
-// change on D-Bus, so the Messages and Phone apps and commhistoryd pick them up at once.
+// same number (or a new one), group messages into a conversation with all its members,
+// calls into the call log. libcommhistory announces every change on D-Bus, so the
+// Messages and Phone apps and commhistoryd pick them up at once.
+//
+// MMS attachments must already be in files (HistoryPart::path, see RestoreTask). Like
+// commhistoryd does it, an MMS is added first and its files are then moved into
+// commhistory/data/<event id>/ (commhistoryd removes folders there that belong to no
+// event), and the event updated with them.
 //
 // Runs in the thread that owns libcommhistory's database connection (the main thread),
 // a batch of events per event-loop turn so the UI stays responsive. Each batch is one
@@ -42,6 +49,9 @@ public:
 
     // libcommhistory's comparison key for a phone number on a cellular account.
     static QString groupKey(const QString &remoteUid);
+    // Key of a conversation with these members (in any order).
+    static QString conversationKey(const QStringList &remoteUids);
+    static QString conversationKey(const HistoryEvent &event);
 
 signals:
     void progress(int done, int total);
@@ -58,7 +68,7 @@ private:
     QString m_localUid;
     QString m_subscriberIdentity;
     QString m_tokenPrefix;
-    QHash<QString, int> m_groups;       // groupKey -> group id
+    QHash<QString, int> m_groups;       // conversationKey -> group id
     QScopedPointer<CommHistory::EventModel> m_model;
     QScopedPointer<CommHistory::GroupManager> m_groupManager;
     int m_next = 0;

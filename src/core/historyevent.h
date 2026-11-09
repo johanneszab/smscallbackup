@@ -4,7 +4,26 @@
 #ifndef HISTORYEVENT_H
 #define HISTORYEVENT_H
 
+#include <QByteArray>
+#include <QList>
 #include <QString>
+#include <QStringList>
+
+// One part of an MMS: a picture, a text, the SMIL layout, ... Sailfish OS keeps each part
+// in a file (MessageParts table, files in ~/.local/share/commhistory/data/<event id>/).
+struct HistoryPart
+{
+    QString contentId;      // e.g. "<image001>", as referenced by the SMIL layout
+    QString contentType;    // e.g. "image/jpeg", "text/plain;charset=utf-8"
+    QString path;           // the file on the phone (backup), or a staged file (restore)
+    QString fileName;       // restore: name for the file, from the backup
+    QByteArray data;        // the content, when loaded
+
+    QString mimeType() const { return contentType.section(QLatin1Char(';'), 0, 0).trimmed().toLower(); }
+    bool isText() const { return mimeType() == QLatin1String("text/plain"); }
+    bool isSmil() const { return mimeType() == QLatin1String("application/smil"); }
+    bool isMedia() const { return !isText() && !isSmil(); }
+};
 
 // One entry of the Sailfish OS communication history (the libcommhistory database behind
 // the Messages and Phone apps), reduced to what a backup needs.
@@ -60,7 +79,21 @@ struct HistoryEvent
     QString incomingStatus;    // event property "incomingStatus": "rejected" or "ignored"
     QString subscriberIdentity; // event property "subscriberIdentity" (the SIM's IMSI)
 
+    // Conversations with several people (group MMS, RCS group chats): everyone in it but
+    // the phone's owner. Empty for one-to-one conversations, which only have remoteUid.
+    // A received message's remoteUid is its sender, a sent one's the first recipient.
+    QStringList participants;
+    // MMS: the To, Cc and Bcc headers, the parts, and the ids the Android phone gave it
+    // (m_id, tr_id, kept so a backup made on Sailfish OS restores into the same message).
+    QStringList toList;
+    QStringList ccList;
+    QStringList bccList;
+    QList<HistoryPart> parts;
+    QString mmsMessageId;
+    QString mmsTransactionId;
+
     bool isMessage() const { return type == SmsEvent || type == MmsEvent; }
+    bool isMms() const { return type == MmsEvent; }
     bool isCall() const { return type == CallEvent; }
     qint64 callDuration() const { return endTime > startTime ? endTime - startTime : 0; }
 };

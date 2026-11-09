@@ -19,9 +19,10 @@ public:
     explicit BackupFiles(QObject *parent = nullptr);
 
     // Newest first: [{ date (ms), files: [paths], names: [file names], messages, calls,
-    // compressed, size (bytes) }]; messages/calls are -1 if the files do not say.
+    // compressed, archive (files each backup adds to), size (bytes) }]; messages/calls are
+    // -1 if the files do not say.
     Q_INVOKABLE QVariantList list(const QString &folder) const;
-    // { ok, error, kind ("messages"/"calls"), count, date, compressed, name, size }
+    // { ok, error, kind ("messages"/"calls"), count, date, compressed, archive, name, size }
     Q_INVOKABLE QVariantMap info(const QString &path) const;
     // Deletes the files of a backup.
     Q_INVOKABLE bool remove(const QStringList &paths) const;

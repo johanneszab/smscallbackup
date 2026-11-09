@@ -65,8 +65,19 @@ enum MmsPduType {
     MmsNotificationInd = 130,    // notification of a message that was never downloaded
     MmsRetrieveConf = 132,       // received message
     MmsDeliveryInd = 134,        // delivery report
-    MmsReadOrigInd = 136         // read report
+    MmsReadRecInd = 135,         // read report (sent)
+    MmsReadOrigInd = 136         // read report (received)
 };
+
+// Placeholder for the phone's own number in <addr> (the From of sent MMS).
+const char *const OwnAddressToken = "insert-address-token";
+// MIBenum of UTF-8, the usual chset/charset value.
+const int CharsetUtf8 = 106;
+
+// Attributes in file order, values as written ("null" stays "null"). Records keep all of
+// them, also the ones this app does not use, so an archive backup can copy entries it does
+// not change exactly.
+typedef QList<QPair<QString, QString> > AttributeList;
 
 struct SmsRecord
 {
@@ -86,6 +97,7 @@ struct SmsRecord
     QString subId;               // Android subscription id as written, "-1" if unknown
     QString readableDate;        // optional
     QString contactName;         // optional, "(Unknown)" for numbers without a contact
+    AttributeList attributes;    // as read from a file; empty for records made by this app
 };
 
 struct CallRecord
@@ -100,9 +112,8 @@ struct CallRecord
     QString subscriptionComponentName; // null if unknown
     QString readableDate;        // optional
     QString contactName;         // optional
+    AttributeList attributes;    // as read from a file; empty for records made by this app
 };
-
-typedef QList<QPair<QString, QString> > AttributeList;
 
 // MMS are kept close to the file: their attribute set depends on the phone.
 struct MmsPart
@@ -124,10 +135,14 @@ struct MmsRecord
     QList<MmsPart> parts;
     QList<MmsAddress> addresses;
     QString value(const QString &name) const;
+    // A number attribute; missing, "null" or not a number give the fallback.
+    qint64 number(const QString &name, qint64 fallback) const;
 };
 
 // Reads an attribute list value; missing attributes and "null" give a null string.
 QString attributeValue(const AttributeList &attributes, const QString &name);
+// Sets an attribute, adding it at the end if it is not there yet.
+void setAttribute(AttributeList *attributes, const QString &name, const QString &value);
 
 } // namespace Sbr
 

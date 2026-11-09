@@ -33,6 +33,7 @@ QVariantMap BackupFiles::info(const QString &path) const
     map.insert(QStringLiteral("name"), file.fileName());
     map.insert(QStringLiteral("size"), file.size());
     map.insert(QStringLiteral("backupSet"), info.backupSet);
+    map.insert(QStringLiteral("archive"), info.isArchive());
     return map;
 }
 
@@ -46,7 +47,10 @@ QVariantList BackupFiles::list(const QString &folder) const
         const QVariantMap file = info(entry.absoluteFilePath());
         if (!file.value(QStringLiteral("ok")).toBool())
             continue;
-        QString key = file.value(QStringLiteral("backupSet")).toString();
+        // Archive files (sms.xml, calls.xml) are one backup that each backup adds to; the
+        // two can have different backup_set ids when only one of them had something new.
+        const bool archive = file.value(QStringLiteral("archive")).toBool();
+        QString key = archive ? QStringLiteral("archive") : file.value(QStringLiteral("backupSet")).toString();
         if (key.isEmpty())
             key = entry.absoluteFilePath();
         QVariantMap set = sets.value(key);
@@ -56,6 +60,7 @@ QVariantList BackupFiles::list(const QString &folder) const
             set.insert(QStringLiteral("date"), qint64(0));
             set.insert(QStringLiteral("size"), qint64(0));
             set.insert(QStringLiteral("compressed"), false);
+            set.insert(QStringLiteral("archive"), archive);
         }
         QStringList files = set.value(QStringLiteral("files")).toStringList();
         QStringList names = set.value(QStringLiteral("names")).toStringList();

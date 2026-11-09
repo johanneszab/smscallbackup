@@ -3,20 +3,29 @@
 
 # SMS & Call Backup for Sailfish OS
 
-Backs up the SMS messages and the call log of a Sailfish OS phone into XML files in the
-format of the Android app [SMS Backup & Restore](https://www.synctech.com.au/sms-backup-restore/),
-and restores such files. Your history can move between Android and Sailfish OS in both
-directions, and you can keep a copy of it anywhere.
+Backs up the SMS and MMS messages and the call log of a Sailfish OS phone into XML files in
+the format of the Android app [SMS Backup & Restore](https://www.synctech.com.au/sms-backup-restore/),
+and restores such files, including the RCS chats in Android backups. Your history can move
+between Android and Sailfish OS in both directions, and you can keep a copy of it anywhere,
+by hand or automatically.
 
 <img src="icons/smscallbackup.svg" width="96" alt="App icon">
 
-<img src="screenshots/main.png" width="200" alt="Main page"> <img src="screenshots/restore.png" width="200" alt="What a backup contains"> <img src="screenshots/restored.png" width="200" alt="After restoring">
+<img src="screenshots/main.png" width="200" alt="Main page"> <img src="screenshots/schedule.png" width="200" alt="Automatic backup"> <img src="screenshots/restore.png" width="200" alt="What a backup contains"> <img src="screenshots/restored.png" width="200" alt="After restoring">
 
 ## Features
 
-* **Backup** of SMS and the call log to `sms-<date>.xml` and `calls-<date>.xml`, laid out
-  like the files of the Android app, so SMS Backup & Restore can restore them on Android
-  and its [online viewer](https://synctech.com.au/view-backup/) can show them.
+* **Backup** of SMS, MMS (with their pictures and other attachments) and the call log,
+  laid out like the files of the Android app, so SMS Backup & Restore can restore them on
+  Android and its [online viewer](https://synctech.com.au/view-backup/) can show them.
+  * **Incremental** (default): each backup adds what is new to `sms.xml` and `calls.xml`
+    (the "archive" files of the Android app). They keep everything, also messages and
+    calls that were deleted on the phone since. Files from the Android app's archive mode
+    can be continued.
+  * Or **new files** each time: `sms-<date>.xml` and `calls-<date>.xml` with everything
+    that is on the phone.
+  * **Automatic backups** every day, week or month at a set time, also when the app is
+    closed (a systemd user timer). A notification tells when one fails.
 * **Restore** of backups made by SMS Backup & Restore on Android (also compressed
   `.xml.zip` backups) or by this app:
   * Shows what is in the backup and what of it is new before anything is changed.
@@ -24,16 +33,18 @@ directions, and you can keep a copy of it anywhere.
   * Messages go into the existing conversations of the Messages app (numbers compare like
     the phone does it, so `0176…` and `+49176…` are the same person), calls into the call
     log of the Phone app. Both apps show them at once, nothing needs a restart.
+  * MMS come back with their attachments, stored like the MMS the phone receives itself.
+    Group messages go into one conversation with all its members.
+  * RCS chats (which Google Messages keeps as MMS in the backup), including group chats
+    and business chats, are restored as messages.
   * Missed, rejected and blocked calls and private numbers are kept apart as on Android.
   * Old messages are restored as read (can be switched off).
   * On dual-SIM phones you choose the SIM the history belongs to.
-* **Command line** for scripts and scheduled backups.
+* **Command line** for scripts.
 * Runs in the Sailjail sandbox with few permissions: communication history, Documents,
   Downloads and memory cards. No network access, no access to contacts.
 
-Not supported yet: MMS (and RCS chats, which Google Messages stores as MMS). MMS in a
-backup are counted and left out. See [docs/FORMAT.md](docs/FORMAT.md) for how every field
-is mapped.
+See [docs/FORMAT.md](docs/FORMAT.md) for how every field is mapped.
 
 Contact names: the Android app writes the contact's name next to each number
 (`contact_name`). Restoring does not need it, and Android looks names up itself. On Sailfish
@@ -62,7 +73,8 @@ When the app starts for the first time, Sailfish OS asks to allow its permission
 
 ## Moving from Sailfish OS to Android
 
-1. Tap **Back up now**. The files land in Documents/smscallbackup.
+1. Tap **Back up now**. The files land in Documents/smscallbackup (`sms.xml` and
+   `calls.xml`, or `sms-<date>.xml` and `calls-<date>.xml`).
 2. Copy them to the Android phone, into the `SMSBackupRestore` folder, and restore them
    with SMS Backup & Restore ("Restore", local backup).
 
@@ -81,25 +93,10 @@ smscallbackup --restore sms-20261108120000.xml calls-20261108120000.xml --sim 2
 smscallbackup --help
 ```
 
-A daily backup with a systemd user timer:
-
-```ini
-# ~/.config/systemd/user/smscallbackup.service
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/smscallbackup --backup
-
-# ~/.config/systemd/user/smscallbackup.timer
-[Timer]
-OnCalendar=daily
-Persistent=true
-
-[Install]
-WantedBy=timers.target
-```
-
-Then `systemctl --user enable --now smscallbackup.timer`. Old backups are not deleted
-automatically.
+`--backup` adds to `sms.xml` and `calls.xml` or writes new files as set in the app;
+`--incremental` and `--new-files` choose explicitly. `smscallbackup --scheduled` makes the
+automatic backup if one is due (`--force`: now); the app's systemd user timer
+`smscallbackup-scheduled.timer` runs it every 15 minutes while automatic backups are on.
 
 ## How it works
 

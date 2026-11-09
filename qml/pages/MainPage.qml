@@ -51,6 +51,12 @@ Page {
         onFinished: page.refresh()
     }
 
+    Connections {
+        target: appSettings
+        // an automatic backup ran while the app was open
+        onBackupsChangedElsewhere: page.refresh()
+    }
+
     SilicaListView {
         id: listView
 
@@ -95,10 +101,16 @@ Page {
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryHighlightColor
-                //: %1 and %2 are e.g. "120 SMS" and "35 calls"
-                text: qsTr("On this phone: %1 and %2.")
-                      .arg(qsTr("%n SMS", "", page.counts.sms || 0))
-                      .arg(qsTr("%n call(s)", "", page.counts.calls || 0))
+                text: (page.counts.mms || 0) > 0
+                      //: %1, %2 and %3 are e.g. "120 SMS", "4 MMS" and "35 calls"
+                      ? qsTr("On this phone: %1, %2 and %3.")
+                        .arg(qsTr("%n SMS", "", page.counts.sms || 0))
+                        .arg(qsTr("%n MMS", "", page.counts.mms || 0))
+                        .arg(qsTr("%n call(s)", "", page.counts.calls || 0))
+                      //: %1 and %2 are e.g. "120 SMS" and "35 calls"
+                      : qsTr("On this phone: %1 and %2.")
+                        .arg(qsTr("%n SMS", "", page.counts.sms || 0))
+                        .arg(qsTr("%n call(s)", "", page.counts.calls || 0))
             }
 
             Label {
@@ -114,9 +126,8 @@ Page {
             TextSwitch {
                 text: qsTr("Messages")
                 //: Description of the "Messages" switch
-                description: (page.counts.mms || 0) > 0
-                             ? qsTr("SMS. MMS are not included yet.")
-                             : qsTr("SMS, saved in sms-<date>.xml")
+                description: appSettings.incremental ? qsTr("SMS and MMS, saved in sms.xml")
+                                                     : qsTr("SMS and MMS, saved in sms-<date>.xml")
                 automaticCheck: false
                 checked: appSettings.backupMessages
                 enabled: !backupTask.running
@@ -125,11 +136,24 @@ Page {
 
             TextSwitch {
                 text: qsTr("Call log")
-                description: qsTr("Saved in calls-<date>.xml")
+                description: appSettings.incremental ? qsTr("Saved in calls.xml")
+                                                     : qsTr("Saved in calls-<date>.xml")
                 automaticCheck: false
                 checked: appSettings.backupCalls
                 enabled: !backupTask.running
                 onClicked: appSettings.backupCalls = !checked
+            }
+
+            TextSwitch {
+                //: Switch: incremental backups into the same two files
+                text: qsTr("Add to the same files")
+                description: appSettings.incremental
+                             ? qsTr("Each backup adds what is new to sms.xml and calls.xml. They keep everything, also what was deleted on the phone.")
+                             : qsTr("Each backup writes new files with everything that is on the phone.")
+                automaticCheck: false
+                checked: appSettings.incremental
+                enabled: !backupTask.running
+                onClicked: appSettings.incremental = !checked
             }
 
             TextSwitch {
@@ -148,6 +172,12 @@ Page {
                 value: backupFiles.displayPath(appSettings.folder)
                 enabled: !backupTask.running
                 onClicked: pageStack.push(folderPicker)
+            }
+
+            ValueButton {
+                label: qsTr("Automatic backup")
+                value: app.scheduleText()
+                onClicked: pageStack.push(Qt.resolvedUrl("SchedulePage.qml"))
             }
 
             Item {
@@ -192,6 +222,19 @@ Page {
                         : ""
             }
 
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * x
+                visible: !backupTask.running && appSettings.lastScheduledBackup > 0 && !appSettings.lastScheduledOk
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.errorColor
+                //: %1 is when, %2 the reason
+                text: qsTr("The automatic backup of %1 failed: %2")
+                      .arg(app.dateTimeText(appSettings.lastScheduledBackup)).arg(appSettings.lastScheduledError)
+            }
+
             SectionHeader {
                 text: qsTr("Restore")
             }
@@ -204,7 +247,7 @@ Page {
                 color: Theme.secondaryHighlightColor
                 text: page.backups.length > 0
                       ? qsTr("Tap a backup to see what it contains. Only what is not on the phone yet is restored.")
-                      : qsTr("No backups in this folder yet. Backups of SMS Backup & Restore on Android work too: copy their sms-….xml and calls-….xml files into this folder, or choose them with “Restore from files” in the pull-down menu.")
+                      : qsTr("No backups in this folder yet. Backups of SMS Backup & Restore on Android work too: copy their XML files into this folder, or choose them with “Restore from files” in the pull-down menu.")
             }
 
             Item {
@@ -264,7 +307,8 @@ Page {
                     wrapMode: Text.Wrap
                     font.pixelSize: Theme.fontSizeExtraSmall
                     color: item.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                    text: modelData.names.join(", ")
+                    //: After the file names of sms.xml and calls.xml
+                    text: modelData.names.join(", ") + (modelData.archive ? " · " + qsTr("each backup adds to them") : "")
                 }
             }
         }

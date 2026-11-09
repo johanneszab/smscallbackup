@@ -62,9 +62,14 @@ Chum metadata block (title, categories, icon, screenshots, links).
 
 * Unit tests on a PC: `qmake6 tests/tests.pro && make && ./tst_core` (all pass).
 * Build with the Sailfish SDK (`mb2 build`) and install the RPM on a phone.
-* On the phone: back up, restore a backup of SMS Backup & Restore (Android), restore the
-  same backup again (nothing must be added the second time), check the Messages and
-  Phone apps.
+* On the phone: back up, restore a backup of SMS Backup & Restore (Android) with MMS,
+  restore the same backup again (nothing must be added the second time), check the
+  Messages and Phone apps (MMS pictures, group conversations).
+* Incremental backup twice in a row: the second one adds nothing and leaves `sms.xml` and
+  `calls.xml` untouched.
+* Automatic backup: set a time a few minutes ahead and check that
+  `systemctl --user list-timers` shows `smscallbackup-scheduled.timer` and that the
+  backup runs (`journalctl --user -u smscallbackup-scheduled`).
 * Translations: the build updates `translations/*.ts` with lupdate; run
   `python3 tools/translations.py` and add the German texts it reports as missing.
 * Screenshots in `screenshots/` must not show real names or numbers.

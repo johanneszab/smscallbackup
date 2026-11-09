@@ -8,6 +8,7 @@ HEADERS += \
     $$PWD/historyevent.h \
     $$PWD/mapping.h \
     $$PWD/phonenumber.h \
+    $$PWD/schedule.h \
     $$PWD/sbrreader.h \
     $$PWD/sbrrecords.h \
     $$PWD/sbrwriter.h \
@@ -17,6 +18,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/mapping.cpp \
     $$PWD/phonenumber.cpp \
+    $$PWD/schedule.cpp \
     $$PWD/sbrreader.cpp \
     $$PWD/sbrrecords.cpp \
     $$PWD/sbrwriter.cpp \

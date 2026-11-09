@@ -96,7 +96,8 @@ bool SbrWriter::write(const QByteArray &data)
     return true;
 }
 
-bool SbrWriter::begin(int count, const QString &backupSet, qint64 backupDate, const QString &creator)
+bool SbrWriter::begin(int count, const QString &backupSet, qint64 backupDate, const QString &creator,
+                      const QString &type)
 {
     const QDateTime created = QDateTime::fromMSecsSinceEpoch(backupDate).toLocalTime();
     QByteArray header("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
@@ -108,6 +109,8 @@ bool SbrWriter::begin(int count, const QString &backupSet, qint64 backupDate, co
     attribute(header, "count", count);
     attribute(header, "backup_set", backupSet);
     attribute(header, "backup_date", backupDate);
+    if (!type.isEmpty())
+        attribute(header, "type", type);
     header += ">\n";
     return write(header);
 }
@@ -176,6 +179,15 @@ bool SbrWriter::writeMms(const Sbr::MmsRecord &r)
     }
     data += "    </addrs>\n  </mms>\n";
     return write(data);
+}
+
+bool SbrWriter::writeElement(const char *name, const Sbr::AttributeList &list)
+{
+    QByteArray line("  <");
+    line += name;
+    attributes(line, list);
+    line += " />\n";
+    return write(line);
 }
 
 bool SbrWriter::end()

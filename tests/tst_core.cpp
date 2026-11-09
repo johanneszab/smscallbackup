@@ -3,6 +3,7 @@
 
 #include "mapping.h"
 #include "phonenumber.h"
+#include "schedule.h"
 #include "sbrreader.h"
 #include "sbrwriter.h"
 #include "xmlrepairdevice.h"
@@ -90,6 +91,18 @@ private slots:
     void eventToRecordsRoundTrip();
     void duplicateKeys();
     void simSlots();
+
+    void scheduleDaily();
+    void scheduleWeeklyMonthly();
+    void scheduleDue();
+    void scheduleDaylightSaving();
+
+    void mmsAndRcsToEvents();
+    void mmsGroups();
+    void eventToMmsRoundTrip();
+    void archiveKeys();
+    void archiveCopy();
+    void partFileNames();
 };
 
 void TestCore::repairSurrogates_data()
@@ -387,7 +400,7 @@ void TestCore::writerFormat()
     QCOMPARE(lines.at(0), QByteArray("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>"));
     QVERIFY(lines.at(1).startsWith("<!--File Created By Test 1.0 on "));
     QVERIFY(lines.at(1).endsWith("-->"));
-    QCOMPARE(lines.at(2), QByteArray("<smses count=\"1\" backup_set=\"abc\" backup_date=\"1706781600000\">"));
+    QCOMPARE(lines.at(2), QByteArray("<smses count=\"1\" backup_set=\"abc\" backup_date=\"1706781600000\" type=\"full\">"));
     QCOMPARE(lines.at(3), QByteArray("  <sms protocol=\"0\" address=\"+12025550101\" date=\"1706770000000\" type=\"1\" "
                                      "subject=\"null\" body=\"Hi &quot;there&quot;\" toa=\"null\" sc_toa=\"null\" "
                                      "service_center=\"null\" read=\"1\" status=\"-1\" locked=\"0\" "
@@ -724,6 +737,428 @@ void TestCore::simSlots()
     QCOMPARE(Mapping::simSlot(QStringLiteral("/org/freedesktop/Telepathy/Account/gabble/jabber/x")), 0);
     QCOMPARE(Mapping::ringAccount(1), QStringLiteral("/org/freedesktop/Telepathy/Account/ring/tel/ril_0"));
     QCOMPARE(Mapping::ringAccount(2), QStringLiteral("/org/freedesktop/Telepathy/Account/ring/tel/ril_1"));
+}
+
+namespace {
+
+QDateTime at(int year, int month, int day, int hour, int minute)
+{
+    return QDateTime(QDate(year, month, day), QTime(hour, minute));
+}
+
+Schedule schedule(int frequency, int hour, int minute, int weekday = 1, int monthday = 1)
+{
+    Schedule s;
+    s.frequency = frequency;
+    s.minutes = hour * 60 + minute;
+    s.weekday = weekday;
+    s.monthday = monthday;
+    return s;
+}
+
+} // namespace
+
+void TestCore::scheduleDaily()
+{
+    const Schedule off;
+    QVERIFY(!off.isEnabled());
+    QVERIFY(!off.previous(at(2026, 11, 9, 12, 0)).isValid());
+    QVERIFY(!off.next(at(2026, 11, 9, 12, 0)).isValid());
+
+    const Schedule daily = schedule(Schedule::Daily, 3, 0);
+    QCOMPARE(daily.previous(at(2026, 11, 9, 12, 0)), at(2026, 11, 9, 3, 0));
+    QCOMPARE(daily.previous(at(2026, 11, 9, 2, 59)), at(2026, 11, 8, 3, 0));
+    QCOMPARE(daily.previous(at(2026, 11, 9, 3, 0)), at(2026, 11, 9, 3, 0));    // at the time: due
+    QCOMPARE(daily.next(at(2026, 11, 9, 3, 0)), at(2026, 11, 10, 3, 0));
+    QCOMPARE(daily.next(at(2026, 11, 9, 2, 0)), at(2026, 11, 9, 3, 0));
+    QCOMPARE(daily.next(at(2026, 12, 31, 23, 0)), at(2027, 1, 1, 3, 0));
+}
+
+void TestCore::scheduleWeeklyMonthly()
+{
+    // 2026-11-09 is a Monday
+    const Schedule weekly = schedule(Schedule::Weekly, 22, 30, 3);      // Wednesdays
+    QCOMPARE(weekly.next(at(2026, 11, 9, 12, 0)), at(2026, 11, 11, 22, 30));
+    QCOMPARE(weekly.previous(at(2026, 11, 9, 12, 0)), at(2026, 11, 4, 22, 30));
+    QCOMPARE(weekly.next(at(2026, 11, 11, 22, 30)), at(2026, 11, 18, 22, 30));
+    const Schedule sunday = schedule(Schedule::Weekly, 8, 0, 7);
+    QCOMPARE(sunday.next(at(2026, 11, 9, 12, 0)), at(2026, 11, 15, 8, 0));
+
+    const Schedule monthly = schedule(Schedule::Monthly, 4, 15, 1, 15);
+    QCOMPARE(monthly.next(at(2026, 11, 9, 12, 0)), at(2026, 11, 15, 4, 15));
+    QCOMPARE(monthly.previous(at(2026, 11, 9, 12, 0)), at(2026, 10, 15, 4, 15));
+    // Day 31: the last day of shorter months
+    const Schedule last = schedule(Schedule::Monthly, 1, 0, 1, 31);
+    QCOMPARE(last.next(at(2026, 11, 9, 12, 0)), at(2026, 11, 30, 1, 0));
+    QCOMPARE(last.next(at(2027, 2, 1, 0, 0)), at(2027, 2, 28, 1, 0));
+    QCOMPARE(last.next(at(2028, 2, 1, 0, 0)), at(2028, 2, 29, 1, 0));
+    QCOMPARE(last.previous(at(2026, 12, 15, 0, 0)), at(2026, 11, 30, 1, 0));
+    QVERIFY(!last.isBackupDay(QDate(2026, 11, 29)));
+    QVERIFY(last.isBackupDay(QDate(2026, 12, 31)));
+}
+
+void TestCore::scheduleDue()
+{
+    const Schedule daily = schedule(Schedule::Daily, 3, 0);
+    const QDateTime never;
+    QVERIFY(daily.isDue(at(2026, 11, 9, 3, 10), never));
+    // Ran at 03:10 (the first timer check): not again until the next night
+    QVERIFY(!daily.isDue(at(2026, 11, 9, 3, 25), at(2026, 11, 9, 3, 10)));
+    QVERIFY(!daily.isDue(at(2026, 11, 10, 2, 59), at(2026, 11, 9, 3, 10)));
+    QVERIFY(daily.isDue(at(2026, 11, 10, 3, 0), at(2026, 11, 9, 3, 10)));
+    // The phone was off at 03:00: the backup runs when it is on again
+    QVERIFY(daily.isDue(at(2026, 11, 10, 9, 0), at(2026, 11, 9, 3, 10)));
+    // Set up at noon: the first backup is at 03:00 the next night
+    QVERIFY(!daily.isDue(at(2026, 11, 9, 12, 15), at(2026, 11, 9, 12, 0)));
+    QVERIFY(daily.isDue(at(2026, 11, 10, 3, 15), at(2026, 11, 9, 12, 0)));
+    QVERIFY(!Schedule().isDue(at(2026, 11, 9, 3, 10), never));
+}
+
+void TestCore::scheduleDaylightSaving()
+{
+    // Only checks something where the local time zone has a gap at that time (Central
+    // Europe: 2027-03-28 02:00 -> 03:00).
+    const QDate day(2027, 3, 28);
+    const QDateTime gap(day, QTime(2, 30));
+    if (gap.isValid() && gap.time() == QTime(2, 30))
+        QSKIP("No daylight saving time gap at 02:30 on 2027-03-28 in this time zone");
+    const Schedule s = schedule(Schedule::Daily, 2, 30);
+    const QDateTime when = s.backupTime(day);
+    QVERIFY(when.isValid());
+    QCOMPARE(when.date(), day);
+    QCOMPARE(when.time(), QTime(3, 30));
+    QVERIFY(s.next(QDateTime(day, QTime(1, 0))) > QDateTime(day, QTime(1, 0)));
+}
+
+void TestCore::mmsAndRcsToEvents()
+{
+    Collected c;
+    QString error;
+    QVERIFY2(readAll(dataFile("mms-rcs-sample.xml"), &c, &error), qPrintable(error));
+    QCOMPARE(c.mms.size(), 9);
+    Mapping::ImportOptions options;
+    options.markAsRead = false;
+    HistoryEvent e;
+    int missing = 0;
+
+    // RCS chat message kept as MMS by Google Messages: text only, no files
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(0), options, &e, &missing), Mapping::NotSkipped);
+    QCOMPARE(e.type, int(HistoryEvent::MmsEvent));
+    QCOMPARE(e.direction, int(HistoryEvent::Inbound));
+    QCOMPARE(e.remoteUid, QStringLiteral("+12025550101"));
+    QVERIFY(e.participants.isEmpty());
+    QCOMPARE(e.freeText, QStringLiteral("RCS hello ") + Emoji);
+    QVERIFY(e.parts.isEmpty());
+    QCOMPARE(e.endTime, qint64(1709280000));
+    QCOMPARE(e.startTime, qint64(1709279999));      // date_sent in seconds
+    QCOMPARE(e.status, int(HistoryEvent::ReceivedStatus));
+    QVERIFY(e.subject.isEmpty());
+    QCOMPARE(e.mmsTransactionId.left(6), QStringLiteral("proto:"));
+    QCOMPARE(e.mmsMessageId, QStringLiteral("1709280000000"));
+    QCOMPARE(Mapping::ownAddressOf(c.mms.at(0)), QStringLiteral("+12025550199"));
+
+    // Sent RCS message
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(1), options, &e, &missing), Mapping::NotSkipped);
+    QCOMPARE(e.direction, int(HistoryEvent::Outbound));
+    QCOMPARE(e.remoteUid, QStringLiteral("+12025550101"));
+    QCOMPARE(e.freeText, QStringLiteral("RCS reply"));
+    QCOMPARE(e.status, int(HistoryEvent::SentStatus));
+    QVERIFY(Mapping::ownAddressOf(c.mms.at(1)).isEmpty());
+
+    // MMS with a picture: SMIL, picture and text are kept as parts
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(4), options, &e, &missing), Mapping::NotSkipped);
+    QCOMPARE(e.direction, int(HistoryEvent::Outbound));
+    QCOMPARE(e.remoteUid, QStringLiteral("+12025550105"));
+    QCOMPARE(e.subject, QStringLiteral("Holiday"));
+    QCOMPARE(e.freeText, QStringLiteral("Greetings from the beach"));
+    QCOMPARE(e.parts.size(), 3);
+    QVERIFY(e.parts.at(0).isSmil());
+    QCOMPARE(e.parts.at(0).fileName, QStringLiteral("smil.xml"));
+    QVERIFY(e.parts.at(0).data.startsWith("<smil>"));
+    QCOMPARE(e.parts.at(1).contentType, QStringLiteral("image/png"));
+    QCOMPARE(e.parts.at(1).fileName, QStringLiteral("beach_photo.png"));
+    QCOMPARE(e.parts.at(1).contentId, QStringLiteral("<beach>"));
+    QVERIFY(e.parts.at(1).data.startsWith("\x89PNG"));
+    QVERIFY(e.parts.at(2).isText());
+    QCOMPARE(e.parts.at(2).data, QByteArray("Greetings from the beach"));
+    QCOMPARE(e.toList, QStringList() << QStringLiteral("+12025550105"));
+    QCOMPARE(missing, 0);
+
+    // Picture left out of the backup ("media" off): nothing left to restore
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(5), options, &e, &missing), Mapping::SkipNoContent);
+    QCOMPARE(missing, 1);
+    // ... but with text the message is restored without it
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(6), options, &e, &missing), Mapping::NotSkipped);
+    QCOMPARE(missing, 2);
+    QVERIFY(e.parts.isEmpty());
+    QCOMPARE(e.freeText, QStringLiteral("The picture is not in this backup"));
+
+    // Delivery report
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(7), options, &e, &missing), Mapping::SkipMmsReport);
+
+    // RCS business chat: under the business name
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(8), options, &e, &missing), Mapping::NotSkipped);
+    QCOMPARE(e.remoteUid, QStringLiteral("Example Bank"));
+    QVERIFY(e.participants.isEmpty());
+    QCOMPARE(e.freeText, QStringLiteral("Your code is 654321"));
+
+    // Without part data (for comparing): same key
+    Mapping::ImportOptions light = options;
+    light.withPartData = false;
+    HistoryEvent full;
+    HistoryEvent bare;
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(4), options, &full), Mapping::NotSkipped);
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(4), light, &bare), Mapping::NotSkipped);
+    QVERIFY(bare.parts.at(1).data.isEmpty());
+    QCOMPARE(Mapping::duplicateKey(bare), Mapping::duplicateKey(full));
+
+    // Drafts and unsent MMS
+    Sbr::MmsRecord draft = c.mms.at(4);
+    Sbr::setAttribute(&draft.attributes, QStringLiteral("msg_box"), QStringLiteral("3"));
+    QCOMPARE(Mapping::mmsToEvent(draft, options, &e), Mapping::SkipDraft);
+    Sbr::setAttribute(&draft.attributes, QStringLiteral("msg_box"), QStringLiteral("5"));
+    QCOMPARE(Mapping::mmsToEvent(draft, options, &e), Mapping::SkipUnsent);
+}
+
+void TestCore::mmsGroups()
+{
+    Collected c;
+    QVERIFY(readAll(dataFile("mms-rcs-sample.xml"), &c));
+    Mapping::ImportOptions options;
+    HistoryEvent e;
+
+    // Group MMS: the address attribute lists everyone but the owner
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(2), options, &e), Mapping::NotSkipped);
+    QCOMPARE(e.remoteUid, QStringLiteral("+12025550102"));     // the sender
+    QCOMPARE(e.participants, QStringList() << QStringLiteral("+12025550101") << QStringLiteral("+12025550102")
+                                          << QStringLiteral("+12025550103"));
+    QCOMPARE(e.freeText, QStringLiteral("Group message from Bob"));
+    QVERIFY(e.parts.isEmpty());     // text only: no files
+    QVERIFY(e.isRead);              // marked read by default
+    QCOMPARE(e.toList, QStringList() << QStringLiteral("+12025550199"));
+    QCOMPARE(e.ccList, QStringList() << QStringLiteral("+12025550101") << QStringLiteral("+12025550103"));
+    QVERIFY(Mapping::ownAddressOf(c.mms.at(2)).isEmpty());
+    options.markAsRead = false;
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(2), options, &e), Mapping::NotSkipped);
+    QVERIFY(!e.isRead);
+
+    // RCS group chat: a chat id instead of numbers, the <addr> list names the members
+    // (here including the owner, whom other messages of the backup reveal)
+    QCOMPARE(Mapping::mmsToEvent(c.mms.at(3), options, &e), Mapping::NotSkipped);
+    QCOMPARE(e.remoteUid, QStringLiteral("+12025550103"));
+    QCOMPARE(e.participants, QStringList() << QStringLiteral("+12025550103") << QStringLiteral("+12025550199")
+                                          << QStringLiteral("+12025550104"));
+    QCOMPARE(e.freeText, QStringLiteral("RCS group chat message"));
+}
+
+void TestCore::eventToMmsRoundTrip()
+{
+    HistoryEvent in;
+    in.type = HistoryEvent::MmsEvent;
+    in.direction = HistoryEvent::Inbound;
+    in.startTime = 1709280299;
+    in.endTime = 1709280300;
+    in.localUid = Mapping::ringAccount(1);
+    in.remoteUid = QStringLiteral("+12025550106");
+    in.participants = QStringList() << QStringLiteral("+12025550106") << QStringLiteral("+12025550107");
+    in.toList = QStringList() << QStringLiteral("+12025550199") << QStringLiteral("+12025550107");
+    in.subject = QStringLiteral("Photo");
+    in.freeText = QStringLiteral("Look ") + Emoji;
+    in.isRead = false;
+    in.status = HistoryEvent::ReceivedStatus;
+    in.mmsMessageId = QStringLiteral("m-123");
+    HistoryPart smil;
+    smil.contentType = QStringLiteral("application/smil");
+    smil.contentId = QStringLiteral("<smil>");
+    smil.fileName = QStringLiteral("smil.xml");
+    smil.data = "<smil/>";
+    HistoryPart picture;
+    picture.contentType = QStringLiteral("image/jpeg");
+    picture.contentId = QStringLiteral("<img>");
+    picture.path = QStringLiteral("/home/user/.local/share/commhistory/data/42/IMG_1.jpg");
+    picture.data = QByteArray("\xFF\xD8\xFF\xE0 not really a JPEG", 22);
+    HistoryPart text;
+    text.contentType = QStringLiteral("text/plain;charset=utf-8");
+    text.contentId = QStringLiteral("<text_0>");
+    text.fileName = QStringLiteral("text_0.txt");
+    text.data = in.freeText.toUtf8();
+    in.parts << smil << picture << text;
+
+    const Sbr::MmsRecord record = Mapping::eventToMms(in, QString());
+    QCOMPARE(record.value(QStringLiteral("msg_box")), QStringLiteral("1"));
+    QCOMPARE(record.value(QStringLiteral("m_type")), QStringLiteral("132"));
+    QCOMPARE(record.value(QStringLiteral("date")), QStringLiteral("1709280300000"));
+    QCOMPARE(record.value(QStringLiteral("date_sent")), QStringLiteral("1709280299"));   // seconds, like Android
+    QCOMPARE(record.value(QStringLiteral("address")), QStringLiteral("+12025550106~+12025550107"));
+    QCOMPARE(record.value(QStringLiteral("read")), QStringLiteral("0"));
+    QCOMPARE(record.value(QStringLiteral("text_only")), QStringLiteral("0"));
+    QCOMPARE(record.value(QStringLiteral("sub")), QStringLiteral("Photo"));
+    QCOMPARE(record.value(QStringLiteral("m_id")), QStringLiteral("m-123"));
+    QVERIFY(record.value(QStringLiteral("tr_id")).isNull());
+    QCOMPARE(record.value(QStringLiteral("sub_id")), QStringLiteral("1"));
+    QCOMPARE(record.parts.size(), 3);
+    QCOMPARE(record.parts.at(0).value(QStringLiteral("seq")), QStringLiteral("-1"));
+    QCOMPARE(record.parts.at(0).value(QStringLiteral("text")), QStringLiteral("<smil/>"));
+    QCOMPARE(record.parts.at(1).value(QStringLiteral("cl")), QStringLiteral("IMG_1.jpg"));
+    QCOMPARE(QByteArray::fromBase64(record.parts.at(1).value(QStringLiteral("data")).toLatin1()), picture.data);
+    QCOMPARE(record.parts.at(2).value(QStringLiteral("ct")), QStringLiteral("text/plain"));
+    QCOMPARE(record.parts.at(2).value(QStringLiteral("chset")), QStringLiteral("106"));
+    QCOMPARE(record.parts.at(2).value(QStringLiteral("text")), in.freeText);
+    QCOMPARE(record.addresses.size(), 3);
+    QCOMPARE(record.addresses.at(0).type, int(Sbr::AddrFrom));
+    QCOMPARE(record.addresses.at(0).address, in.remoteUid);
+    QCOMPARE(record.addresses.at(1).type, int(Sbr::AddrTo));
+
+    Mapping::ImportOptions options;
+    options.markAsRead = false;
+    HistoryEvent out;
+    QCOMPARE(Mapping::mmsToEvent(record, options, &out), Mapping::NotSkipped);
+    QCOMPARE(out.type, in.type);
+    QCOMPARE(out.direction, in.direction);
+    QCOMPARE(out.startTime, in.startTime);
+    QCOMPARE(out.endTime, in.endTime);
+    QCOMPARE(out.remoteUid, in.remoteUid);
+    QCOMPARE(out.participants, in.participants);
+    QCOMPARE(out.subject, in.subject);
+    QCOMPARE(out.freeText, in.freeText);
+    QCOMPARE(out.isRead, false);
+    QCOMPARE(out.parts.size(), 3);
+    QCOMPARE(out.parts.at(1).data, picture.data);
+    QCOMPARE(out.parts.at(1).fileName, QStringLiteral("IMG_1.jpg"));
+    QCOMPARE(out.mmsMessageId, in.mmsMessageId);
+    QCOMPARE(Mapping::duplicateKey(out), Mapping::duplicateKey(in));
+
+    // Sent, text only (restored RCS messages have no parts): a text part is made
+    HistoryEvent sent;
+    sent.type = HistoryEvent::MmsEvent;
+    sent.direction = HistoryEvent::Outbound;
+    sent.startTime = sent.endTime = 1709280060;
+    sent.remoteUid = QStringLiteral("+12025550101");
+    sent.freeText = QStringLiteral("RCS reply");
+    sent.status = HistoryEvent::SentStatus;
+    const Sbr::MmsRecord sentRecord = Mapping::eventToMms(sent, QString());
+    QCOMPARE(sentRecord.value(QStringLiteral("msg_box")), QStringLiteral("2"));
+    QCOMPARE(sentRecord.value(QStringLiteral("m_type")), QStringLiteral("128"));
+    QCOMPARE(sentRecord.value(QStringLiteral("text_only")), QStringLiteral("1"));
+    QCOMPARE(sentRecord.value(QStringLiteral("date_sent")), QStringLiteral("0"));
+    QCOMPARE(sentRecord.parts.size(), 1);
+    QCOMPARE(sentRecord.addresses.at(0).address, QLatin1String(Sbr::OwnAddressToken));
+    QCOMPARE(sentRecord.addresses.at(1).address, sent.remoteUid);
+    QCOMPARE(Mapping::mmsToEvent(sentRecord, options, &out), Mapping::NotSkipped);
+    QCOMPARE(Mapping::duplicateKey(out), Mapping::duplicateKey(sent));
+}
+
+void TestCore::archiveKeys()
+{
+    // An entry of an Android backup and the entry this app writes for the same message
+    // after restoring it (milliseconds lost, other attributes) have the same key.
+    Collected sms;
+    QVERIFY(readAll(dataFile("sms-sample.xml"), &sms));
+    const Mapping::ImportOptions options;
+    for (const Sbr::SmsRecord &r : sms.sms) {
+        HistoryEvent e;
+        if (Mapping::smsToEvent(r, options, &e) != Mapping::NotSkipped)
+            continue;
+        QCOMPARE(Mapping::archiveKey(Mapping::eventToSms(e, QString())), Mapping::archiveKey(r));
+    }
+    Collected calls;
+    QVERIFY(readAll(dataFile("calls-sample.xml"), &calls));
+    for (const Sbr::CallRecord &r : calls.calls) {
+        HistoryEvent e;
+        if (Mapping::callToEvent(r, options, &e) != Mapping::NotSkipped)
+            continue;
+        QCOMPARE(Mapping::archiveKey(Mapping::eventToCall(e, QString())), Mapping::archiveKey(r));
+    }
+    Collected mms;
+    QVERIFY(readAll(dataFile("mms-rcs-sample.xml"), &mms));
+    for (const Sbr::MmsRecord &r : mms.mms) {
+        HistoryEvent e;
+        if (Mapping::mmsToEvent(r, options, &e) != Mapping::NotSkipped)
+            continue;
+        QCOMPARE(Mapping::archiveKey(Mapping::eventToMms(e, QString())), Mapping::archiveKey(r));
+    }
+
+    // Entries that cannot be restored still have their own keys
+    const Sbr::SmsRecord draft = sms.sms.at(4);
+    QCOMPARE(draft.type, int(Sbr::BoxDraft));
+    Sbr::SmsRecord otherDraft = draft;
+    QCOMPARE(Mapping::archiveKey(otherDraft), Mapping::archiveKey(draft));
+    otherDraft.body = QStringLiteral("changed draft");
+    QVERIFY(Mapping::archiveKey(otherDraft) != Mapping::archiveKey(draft));
+    QVERIFY(Mapping::archiveKey(mms.mms.at(7)) != Mapping::archiveKey(mms.mms.at(4)));     // report vs. message
+    QVERIFY(Mapping::archiveKey(sms.sms.at(0)) != Mapping::archiveKey(sms.sms.at(1)));
+}
+
+void TestCore::archiveCopy()
+{
+    // Entries copied into an archive file keep all their attributes.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("sms.xml"));
+    Collected original;
+    QVERIFY(readAll(dataFile("sms-sample.xml"), &original));
+    Collected mmsOriginal;
+    QVERIFY(readAll(dataFile("mms-rcs-sample.xml"), &mmsOriginal));
+    {
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        SbrWriter writer(&file, SbrWriter::MessagesKind);
+        QVERIFY(writer.begin(original.sms.size() + mmsOriginal.mms.size(), QStringLiteral("set"),
+                             Q_INT64_C(1709287200000), QStringLiteral("Test"), QStringLiteral("archive")));
+        for (const Sbr::SmsRecord &r : original.sms)
+            QVERIFY(writer.writeElement("sms", r.attributes));
+        for (const Sbr::MmsRecord &r : mmsOriginal.mms)
+            QVERIFY(writer.writeMms(r));
+        QVERIFY(writer.end());
+    }
+    Collected copy;
+    SbrReader::Info info;
+    QString error;
+    QVERIFY2(readAll(path, &copy, &error, &info), qPrintable(error));
+    QVERIFY(info.isArchive());
+    QCOMPARE(info.count, original.sms.size() + mmsOriginal.mms.size());
+    QCOMPARE(copy.sms.size(), original.sms.size());
+    for (int i = 0; i < copy.sms.size(); ++i) {
+        QCOMPARE(copy.sms.at(i).attributes, original.sms.at(i).attributes);
+        QCOMPARE(Mapping::archiveKey(copy.sms.at(i)), Mapping::archiveKey(original.sms.at(i)));
+    }
+    QCOMPARE(copy.mms.size(), mmsOriginal.mms.size());
+    for (int i = 0; i < copy.mms.size(); ++i) {
+        QCOMPARE(copy.mms.at(i).attributes, mmsOriginal.mms.at(i).attributes);
+        QCOMPARE(copy.mms.at(i).parts.size(), mmsOriginal.mms.at(i).parts.size());
+        QCOMPARE(copy.mms.at(i).addresses.size(), mmsOriginal.mms.at(i).addresses.size());
+        QCOMPARE(Mapping::archiveKey(copy.mms.at(i)), Mapping::archiveKey(mmsOriginal.mms.at(i)));
+    }
+    // The emoji written as two surrogate references by the Android app is UTF-8 now.
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    const QByteArray content = file.readAll();
+    QVERIFY(!content.contains("&#55357;"));
+    QVERIFY(content.contains(Emoji.toUtf8()));
+    QVERIFY(content.contains(QStringLiteral("<smses count=\"%1\" backup_set=\"set\" backup_date=\"1709287200000\" type=\"archive\">")
+                             .arg(original.sms.size() + mmsOriginal.mms.size()).toUtf8()));
+}
+
+void TestCore::partFileNames()
+{
+    QCOMPARE(Mapping::partFileName(QStringLiteral("beach photo.png"), QStringLiteral("image/png"), 1),
+             QStringLiteral("beach_photo.png"));
+    QCOMPARE(Mapping::partFileName(QStringLiteral("<image001>"), QStringLiteral("image/jpeg"), 1),
+             QStringLiteral("image001.jpg"));
+    QCOMPARE(Mapping::partFileName(QString(), QStringLiteral("video/3gpp"), 3), QStringLiteral("part3.3gp"));
+    QCOMPARE(Mapping::partFileName(QStringLiteral("../../etc/passwd"), QStringLiteral("text/plain"), 1),
+             QStringLiteral("passwd.txt"));
+    QCOMPARE(Mapping::partFileName(QStringLiteral(".hidden"), QStringLiteral("image/gif"), 2),
+             QStringLiteral("hidden.gif"));
+    QCOMPARE(Mapping::partFileName(QString::fromUtf8("Ärger.jpg"), QStringLiteral("image/jpeg"), 1),
+             QStringLiteral("_rger.jpg"));
+    QCOMPARE(Mapping::partFileName(QString(200, QLatin1Char('a')) + QStringLiteral(".jpeg"),
+                                   QStringLiteral("image/jpeg"), 1).size(), 80);
+    QCOMPARE(Mapping::partFileName(QStringLiteral("x"), QStringLiteral("application/octet-stream"), 1),
+             QStringLiteral("x"));
+    QCOMPARE(Mapping::decodeText(QByteArray("caf\xE9"), QStringLiteral("text/plain;charset=iso-8859-1")),
+             QString::fromUtf8("café"));
+    QCOMPARE(Mapping::decodeText(QByteArray("caf\xC3\xA9"), QStringLiteral("text/plain")), QString::fromUtf8("café"));
 }
 
 QTEST_GUILESS_MAIN(TestCore)

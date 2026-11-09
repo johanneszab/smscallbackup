@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<!-- SPDX-FileCopyrightText: 2026 Johannes Meyer zum Alten Borgloh -->
+<!-- SPDX-License-Identifier: MIT -->
+<!--File Created By SMS Backup & Restore v10.29.002 on 01/03/2024 10:00:00 (test data: all names and numbers are made up; the owner is +12025550199)-->
+<smses count="9" backup_set="22222222-3333-4444-8555-666666666666" backup_date="1709287200000" type="full">
+  <mms date="1709280000000" spam_report="0" ct_t="text/plain" msg_box="1" address="+12025550101" sub_cs="106" m_id="1709280000000" date_sent="1709279999" read="1" ct_cls="135" sub_id="1" m_type="132" sub="" seen="1" text_only="1" creator="com.google.android.apps.messaging" m_size="0" tr_id="proto:CkIKImNvbS5nb29nbGUuYW5kcm9pZC5hcHBzLm1lc3NhZ2luZxIcMTIzNDU2Nzg5MA" readable_date="Mar 1, 2024 09:00:00" contact_name="Alice Example">
+    <parts>
+      <part seq="0" ct="text/plain" name="body" chset="106" cd="null" fn="null" cid="null" cl="null" ctt_s="null" ctt_t="null" text="RCS hello &#55357;&#56832;" />
+    </parts>
+    <addrs>
+      <addr address="+12025550101" type="130" charset="106" />
+      <addr address="+12025550101" type="137" charset="106" />
+      <addr address="+12025550199" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280060000" ct_t="text/plain" msg_box="2" address="+12025550101" m_id="null" date_sent="0" read="1" sub_id="1" m_type="128" sub="null" text_only="1" creator="com.google.android.apps.messaging" tr_id="proto:CkIKImNvbS5nb29nbGUuYW5kcm9pZC5hcHBzLm1lc3NhZ2luZxIcMTIzNDU2Nzg5MQ" readable_date="Mar 1, 2024 09:01:00" contact_name="Alice Example">
+    <parts>
+      <part seq="0" ct="text/plain" name="body" chset="106" cd="null" fn="null" cid="null" cl="null" ctt_s="null" ctt_t="null" text="  RCS reply  " />
+    </parts>
+    <addrs>
+      <addr address="insert-address-token" type="137" charset="106" />
+      <addr address="+12025550101" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280120000" ct_t="application/vnd.wap.multipart.related" msg_box="1" address="+12025550101~+12025550102~+12025550103" m_id="m-group-1" date_sent="1709280118" read="0" sub_id="1" m_type="132" sub="null" text_only="1" tr_id="proto:group1" readable_date="Mar 1, 2024 09:02:00" contact_name="Alice Example, Bob Example">
+    <parts>
+      <part seq="-1" ct="application/smil" name="smil.xml" chset="null" cd="null" fn="null" cid="&lt;smil&gt;" cl="smil.xml" ctt_s="null" ctt_t="null" text="&lt;smil&gt;&lt;body&gt;&lt;par dur=&quot;5000ms&quot;&gt;&lt;text src=&quot;text000001.txt&quot;/&gt;&lt;/par&gt;&lt;/body&gt;&lt;/smil&gt;" />
+      <part seq="0" ct="text/plain" name="text000001.txt" chset="106" cd="null" fn="null" cid="&lt;text000001&gt;" cl="text000001.txt" ctt_s="null" ctt_t="null" text="Group message from Bob" />
+    </parts>
+    <addrs>
+      <addr address="+12025550102" type="137" charset="106" />
+      <addr address="+12025550199" type="151" charset="106" />
+      <addr address="+12025550101" type="130" charset="106" />
+      <addr address="+12025550103" type="130" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280180000" ct_t="text/plain" msg_box="1" address="team-chat-42@rcs.google.com" m_id="null" date_sent="1709280179" read="1" sub_id="1" m_type="132" sub="" text_only="1" tr_id="proto:group2" readable_date="Mar 1, 2024 09:03:00" contact_name="(Unknown)">
+    <parts>
+      <part seq="0" ct="text/plain" name="body" chset="106" cd="null" fn="null" cid="null" cl="null" ctt_s="null" ctt_t="null" text="RCS group chat message" />
+    </parts>
+    <addrs>
+      <addr address="+12025550103" type="137" charset="106" />
+      <addr address="+12025550199" type="151" charset="106" />
+      <addr address="+12025550104" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280240000" ct_t="application/vnd.wap.multipart.related" msg_box="2" address="+12025550105" m_id="m-pic-1" date_sent="0" read="1" sub_id="2" m_type="128" sub="Holiday" text_only="0" readable_date="Mar 1, 2024 09:04:00" contact_name="(Unknown)">
+    <parts>
+      <part seq="-1" ct="application/smil" name="smil.xml" chset="null" cd="null" fn="null" cid="&lt;smil&gt;" cl="smil.xml" ctt_s="null" ctt_t="null" text="&lt;smil&gt;&lt;body&gt;&lt;par dur=&quot;5000ms&quot;&gt;&lt;img src=&quot;beach photo.png&quot;/&gt;&lt;text src=&quot;text_0.txt&quot;/&gt;&lt;/par&gt;&lt;/body&gt;&lt;/smil&gt;" />
+      <part seq="0" ct="image/png" name="beach photo.png" chset="null" cd="null" fn="null" cid="&lt;beach&gt;" cl="beach photo.png" ctt_s="null" ctt_t="null" text="null" data="iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAD0lEQVR42mNgqLiOQMRxABNCFPFmAF/zAAAAAElFTkSuQmCC" />
+      <part seq="0" ct="text/plain" name="null" chset="106" cd="null" fn="null" cid="&lt;text_0&gt;" cl="text_0.txt" ctt_s="null" ctt_t="null" text="Greetings from the beach" />
+    </parts>
+    <addrs>
+      <addr address="insert-address-token" type="137" charset="106" />
+      <addr address="+12025550105" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280300000" ct_t="application/vnd.wap.multipart.related" msg_box="1" address="+12025550106" m_id="m-pic-2" date_sent="1709280299" read="1" sub_id="1" m_type="132" sub="null" text_only="0" readable_date="Mar 1, 2024 09:05:00" contact_name="(Unknown)">
+    <parts>
+      <part seq="0" ct="image/jpeg" name="IMG_0001.jpg" chset="null" cd="null" fn="null" cid="&lt;img1&gt;" cl="IMG_0001.jpg" ctt_s="null" ctt_t="null" text="null" />
+    </parts>
+    <addrs>
+      <addr address="+12025550106" type="137" charset="106" />
+      <addr address="+12025550199" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280360000" ct_t="application/vnd.wap.multipart.related" msg_box="1" address="+12025550106" m_id="m-pic-3" date_sent="1709280359" read="1" sub_id="1" m_type="132" sub="null" text_only="0" readable_date="Mar 1, 2024 09:06:00" contact_name="(Unknown)">
+    <parts>
+      <part seq="0" ct="image/jpeg" name="IMG_0002.jpg" chset="null" cd="null" fn="null" cid="&lt;img2&gt;" cl="IMG_0002.jpg" ctt_s="null" ctt_t="null" text="null" />
+      <part seq="0" ct="text/plain" name="null" chset="106" cd="null" fn="null" cid="&lt;text_0&gt;" cl="text_0.txt" ctt_s="null" ctt_t="null" text="The picture is not in this backup" />
+    </parts>
+    <addrs>
+      <addr address="+12025550106" type="137" charset="106" />
+      <addr address="+12025550199" type="151" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280420000" ct_t="application/vnd.wap.multipart.related" msg_box="1" address="+12025550105" m_id="m-pic-1" date_sent="0" read="1" sub_id="2" m_type="134" sub="null" text_only="1" readable_date="Mar 1, 2024 09:07:00" contact_name="(Unknown)">
+    <parts />
+    <addrs>
+      <addr address="+12025550105" type="137" charset="106" />
+    </addrs>
+  </mms>
+  <mms date="1709280480000" ct_t="text/plain" msg_box="1" address="example-bank@bot.rcs.google.com" m_id="null" date_sent="1709280479" read="1" sub_id="1" m_type="132" sub="" text_only="1" tr_id="proto:bot1" readable_date="Mar 1, 2024 09:08:00" contact_name="Example Bank">
+    <parts>
+      <part seq="0" ct="text/plain" name="body" chset="106" cd="null" fn="null" cid="null" cl="null" ctt_s="null" ctt_t="null" text="Your code is 654321" />
+    </parts>
+    <addrs>
+      <addr address="example-bank@bot.rcs.google.com" type="137" charset="106" />
+      <addr address="+12025550199" type="151" charset="106" />
+    </addrs>
+  </mms>
+</smses>

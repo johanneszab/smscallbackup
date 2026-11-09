@@ -30,8 +30,9 @@ Page {
 
     function notes() {
         var lines = []
-        if ((summary.mms || 0) > 0)
-            lines.push(qsTr("%n MMS cannot be restored yet and are left out.", "", summary.mms))
+        if ((summary.missingAttachments || 0) > 0)
+            lines.push(qsTr("%n attachment(s) of MMS are not in the backup (it was made without them). Their messages are restored without them.",
+                            "", summary.missingAttachments))
         var skipped = summary.skipped || []
         for (var i = 0; i < skipped.length; ++i)
             //: e.g. "Left out: 3 drafts"
@@ -92,6 +93,12 @@ Page {
                     visible: (summary.messages || 0) > 0
                     label: qsTr("Messages in the backup")
                     value: summary.messages || 0
+                }
+                DetailItem {
+                    visible: (summary.mms || 0) > 0
+                    //: Number of MMS among the messages of the backup
+                    label: qsTr("MMS among them")
+                    value: summary.mms || 0
                 }
                 DetailItem {
                     visible: (summary.messages || 0) > 0

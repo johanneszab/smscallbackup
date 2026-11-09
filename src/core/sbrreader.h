@@ -40,7 +40,9 @@ public:
         int count = -1;             // the root's count attribute, -1 if missing
         qint64 backupDate = 0;      // ms since the epoch, 0 if missing
         QString backupSet;
+        QString type;               // "full", "archive" (added to with each backup), or empty
         bool compressed = false;
+        bool isArchive() const { return type == QLatin1String("archive"); }
     };
 
     explicit SbrReader(const QString &path);

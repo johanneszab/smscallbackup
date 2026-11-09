@@ -65,6 +65,7 @@ Sbr::SmsRecord smsRecord(const QXmlStreamAttributes &a)
     r.subId = text(a, "sub_id");
     r.readableDate = text(a, "readable_date");
     r.contactName = text(a, "contact_name");
+    r.attributes = attributeList(a);
     return r;
 }
 
@@ -81,6 +82,7 @@ Sbr::CallRecord callRecord(const QXmlStreamAttributes &a)
     r.subscriptionComponentName = text(a, "subscription_component_name");
     r.readableDate = text(a, "readable_date");
     r.contactName = text(a, "contact_name");
+    r.attributes = attributeList(a);
     return r;
 }
 
@@ -177,6 +179,7 @@ bool SbrReader::run(const Callbacks *callbacks)
             m_info.count = int(number(a, "count", -1));
             m_info.backupDate = number(a, "backup_date", 0);
             m_info.backupSet = text(a, "backup_set");
+            m_info.type = text(a, "type");
             m_info.ok = true;
             if (!callbacks)
                 break;

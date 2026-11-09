@@ -49,7 +49,7 @@ Page {
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.highlightColor
-                text: qsTr("Backs up your SMS and call log in the XML format of the Android app SMS Backup & Restore, and restores such backups. Move your history between Android and Sailfish OS in both directions, or keep a copy of it.")
+                text: qsTr("Backs up your SMS, MMS and call log in the XML format of the Android app SMS Backup & Restore, and restores such backups, also their RCS chats. Move your history between Android and Sailfish OS in both directions, or keep a copy of it, by hand or automatically.")
             }
 
             Label {
@@ -81,7 +81,7 @@ Page {
                 font.pixelSize: Theme.fontSizeExtraSmall
                 font.family: "monospace"
                 color: Theme.secondaryHighlightColor
-                text: "smscallbackup --backup [FOLDER]\nsmscallbackup --restore FILE… [--dry-run]\nsmscallbackup --help"
+                text: "smscallbackup --backup [FOLDER]\nsmscallbackup --restore FILE… [--dry-run]\nsmscallbackup --scheduled [--force]\nsmscallbackup --help"
             }
 
             SectionHeader {

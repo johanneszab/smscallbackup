@@ -7,7 +7,7 @@ CONFIG += sailfishapp sailfishapp_i18n c++14
 QT += concurrent dbus sql
 PKGCONFIG += commhistory-qt5
 
-isEmpty(VERSION): VERSION = 0.1.0
+isEmpty(VERSION): VERSION = 0.2.0
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 include(src/core/core.pri)
@@ -42,8 +42,11 @@ DISTFILES += \
     qml/pages/AboutPage.qml \
     qml/pages/MainPage.qml \
     qml/pages/RestorePage.qml \
+    qml/pages/SchedulePage.qml \
     rpm/smscallbackup.spec \
     smscallbackup.desktop \
+    systemd/smscallbackup-scheduled.service \
+    systemd/smscallbackup-scheduled.timer \
     translations/*.ts
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 172x172 256x256
@@ -55,3 +58,8 @@ TRANSLATIONS += \
 license.files = LICENSE
 license.path = /usr/share/licenses/$$TARGET
 INSTALLS += license
+
+# Automatic backups: a systemd user timer starts "smscallbackup --scheduled"
+systemd.files = systemd/smscallbackup-scheduled.service systemd/smscallbackup-scheduled.timer
+systemd.path = /usr/lib/systemd/user
+INSTALLS += systemd

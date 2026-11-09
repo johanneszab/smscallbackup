@@ -42,6 +42,9 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<RestoreTask>("SmsCallBackup", 1, 0, "RestoreTask", QStringLiteral("Provided by the app"));
 
     Settings settings;
+    // The automatic backup runs in another process and writes its results to the settings.
+    settings.watchFile();
+    settings.updateScheduleMarker();
     BackupFiles backupFiles;
     BackupTask backupTask;
     RestoreTask restoreTask;

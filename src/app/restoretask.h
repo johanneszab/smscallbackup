@@ -26,8 +26,9 @@ class RestoreTask : public QObject
     Q_PROPERTY(qreal progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(QString status READ status NOTIFY progressChanged)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
-    // files, messages, newMessages, calls, newCalls, mms, skipped (list of texts),
-    // firstTime, lastTime (ms, of the new entries)
+    // files, messages (SMS and MMS), newMessages, mms, newMms (MMS among them), calls,
+    // newCalls, missingAttachments (MMS attachments the backup does not contain),
+    // skipped ([{ count, reason }]), firstTime, lastTime (ms, of the new entries)
     Q_PROPERTY(QVariantMap summary READ summary NOTIFY stateChanged)
     // [{ localUid, name }], the account used most recently first
     Q_PROPERTY(QVariantList accounts READ accounts NOTIFY stateChanged)
@@ -69,6 +70,7 @@ public:
         QList<HistoryEvent> events;     // not on the phone yet, sorted by time
         QVariantMap summary;
         QStringList accountsWithHistory;
+        QString stagingDir;             // files of the new MMS's attachments
     };
 
 signals:
@@ -83,6 +85,7 @@ private slots:
 
 private:
     void setState(State state, const QString &error = QString());
+    void removeStagingDir();
 
     State m_state = Idle;
     qreal m_progress = 0;
@@ -92,6 +95,7 @@ private:
     QVariantList m_accounts;
     QVariantMap m_result;
     QList<HistoryEvent> m_events;
+    QString m_stagingDir;
     std::atomic<bool> m_cancel;
     QFutureWatcher<Analysis> m_watcher;
     HistoryWriter *m_writer = nullptr;
