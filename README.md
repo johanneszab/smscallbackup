@@ -107,11 +107,6 @@ the Phone app and commhistoryd use: it stores the entries exactly like the phone
 announces them on D-Bus, so all apps update immediately. Details are in
 [docs/FORMAT.md](docs/FORMAT.md).
 
-## Publishing
-
-See [docs/CHUM.md](docs/CHUM.md) for building on the Sailfish OS OBS and submitting to
-SailfishOS:Chum.
-
 ## Building
 
 With the [Sailfish SDK](https://docs.sailfishos.org/Tools/Sailfish_SDK/) (needs
@@ -129,7 +124,8 @@ mkdir build-tests && cd build-tests
 qmake6 ../tests/tests.pro && make && ./tst_core
 ```
 
-Translations live in `translations/`; they are updated by the build (`lupdate`).
+Translations live in `translations/` as Qt Linguist files (`.ts`); the build updates them
+with `lupdate`.
 
 ## License
 
